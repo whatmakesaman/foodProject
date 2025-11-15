@@ -1,0 +1,29 @@
+### 📌 1. 문의 등록 (POST)
+POST http://127.0.0.1:5000/api/inquiries
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "title": "테스트 제목",
+  "writer": "준혁",
+  "content": "문의 내용입니다",
+  "field": "기타"
+}
+
+### 📌 2. 내 문의 목록 조회 (GET)
+GET http://127.0.0.1:5000/api/inquiries/me
+
+
+### 📌 3. 문의 상세 조회 (GET)
+GET http://127.0.0.1:5000/api/inquiries/1
+# ↑ 여기는 실제 존재하는 inquiry_id로 변경하기
+
+
+### 📌 4. 관리자 답변 등록/수정 (POST)
+POST http://127.0.0.1:5000/api/admin/inquiries/1/answer
+Content-Type: application/json
+
+{
+  "answer": "관리자 답변 내용입니다."
+}
+# ↑ inquiry_id 존재하는 번호로 변경해줘
