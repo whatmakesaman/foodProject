@@ -36,7 +36,7 @@ Content-Type: application/json
 ### 📌 5. 매장 정보 조회 (수정 페이지 진입용)
 GET http://127.0.0.1:5000/api/stores/1
 Content-Type: application/json
-
+# ↑ stores/(num)에서 (num)안에는 실제 존재하는 store_id로 변경바람
 ###
 # 성공 예시 (200)
 # {
