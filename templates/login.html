@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+</head>
+<body>
+
+<h2>학생 / 사장 로그인</h2>
+
+<form action="/login" method="post">
+    <p>로그인 아이디:
+        <input type="text" name="login_id" required>
+    </p>
+
+    <p>비밀번호:
+        <input type="password" name="pw" required>
+    </p>
+
+    <button type="submit">로그인</button>
+</form>
+
+</body>
+</html>
+🔷 Step 3 — admin_login.html (관리자 전용 로그인)
+templates/admin_login.html
+
+html
+코드 복사
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 로그인</title>
+</head>
+<body>
+
+<h2>관리자 로그인</h2>
+
+<form action="/admin_login" method="post">
+    <p>관리자 아이디:
+        <input type="text" name="login_id" required>
+    </p>
+
+    <p>비밀번호:
+        <input type="password" name="pw" required>
+    </p>
+
+    <button type="submit">로그인</button>
+</form>
+
+</body>
+</html>

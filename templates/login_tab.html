@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <style>
+        .tab {
+            display: flex;
+            width: 400px;
+        }
+        .tab button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid black;
+            border-bottom: none;
+            background: #eeeeee;
+            cursor: pointer;
+        }
+        .active {
+            background: white;
+            font-weight: bold;
+        }
+
+        .box {
+            width: 400px;
+            border: 1px solid black;
+            padding: 20px 30px;
+            box-sizing: border-box;
+            position: relative;
+            min-height: 170px;
+        }
+
+        .submit-btn {
+            position: absolute;
+            bottom: 20px; 
+            right: 20px;
+            padding: 10px 25px;  
+            font-size: 16px;
+        }
+
+        p {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>로그인</h2>
+
+<!-- 탭 -->
+<div class="tab">
+    <button id="user_tab" class="active" onclick="showUser()">사용자</button>
+    <button id="admin_tab" onclick="showAdmin()">관리자</button>
+</div>
+
+<!-- 박스 -->
+<div class="box">
+
+    <!-- 사용자 로그인 -->
+    <div id="user_login">
+        <form action="/login" method="post">
+            <p>ID: <input type="text" name="login_id" required></p>
+            <p>PW: <input type="password" name="pw" required></p>
+            <button class="submit-btn" type="submit">확인</button>
+        </form>
+    </div>
+
+    <!-- 관리자 로그인 -->
+    <div id="admin_login" style="display:none;">
+        <form action="/admin_login" method="post">
+            <p>ID: <input type="text" name="login_id" required></p>
+            <p>PW: <input type="password" name="pw" required></p>
+            <button class="submit-btn" type="submit">확인</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+// 사용자 탭
+function showUser() {
+    document.getElementById("user_login").style.display = "block";
+    document.getElementById("admin_login").style.display = "none";
+
+    document.getElementById("user_tab").classList.add("active");
+    document.getElementById("admin_tab").classList.remove("active");
+}
+
+// 관리자 탭
+function showAdmin() {
+    document.getElementById("user_login").style.display = "none";
+    document.getElementById("admin_login").style.display = "block";
+
+    document.getElementById("admin_tab").classList.add("active");
+    document.getElementById("user_tab").classList.remove("active");
+}
+</script>
+
+</body>
+</html>

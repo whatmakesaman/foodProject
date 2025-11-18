@@ -192,4 +192,4 @@ ORDER BY b.bayes_score DESC, b.review_cnt DESC, b.avg_rating DESC, b.store_id AS
 
 USE fooddb;
 SHOW TABLES;
-SELECT * FROM store_ranking LIMIT 5;
+SELECT * FROM  v_store_ranking LIMIT 5;
