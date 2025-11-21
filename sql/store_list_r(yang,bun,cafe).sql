@@ -26,7 +26,7 @@ INSERT INTO store (name, address, open_time, close_time, phone, distance_km, cat
  '22:00',
  '0507-2093-9885',
  1.8,
- 6)
+ 6),
 
  -- 14. 스타벅스 시화로데오점
 ('스타벅스 시화로데오점',
