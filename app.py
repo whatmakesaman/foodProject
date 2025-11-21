@@ -3,12 +3,16 @@ from flask_cors import CORS
 from ranking import get_rank
 import decimal
 from db import get_connection
-from datetime import datetime
+from datetime import datetime, timedelta
+from store_info import bp as store_info_bp
 
 
 
 app = Flask(__name__)
 CORS(app)   # 프론트와 포트 달라도 요청 가능하게
+
+# Blueprint 등록
+app.register_blueprint(store_info_bp)
 
 def convert_decimal(rows):
     """Decimal 타입을 float으로 변환 (JSON 응답용)"""
