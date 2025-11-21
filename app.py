@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from ranking import get_rank
 import decimal
@@ -109,6 +109,12 @@ def list_inquiries():
         conn.close()
 
     return jsonify(rows)
+
+#랭킹페이지 출력
+@app.route('/ranking')
+def ranking_page():
+    """랭킹 페이지"""
+    return render_template('ranking.html')
 
 
 # ⚠️ 모든 라우트 정의가 끝난 뒤에!

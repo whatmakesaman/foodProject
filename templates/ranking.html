@@ -79,7 +79,8 @@
     </div>
 
     <script>
-      const API_URL = "http://localhost:5000/api/rank?limit=20&use_adv=1";
+      //const API_URL = "http://localhost:5000/api/rank?limit=20&use_adv=1";
+      const API_URL = "/api/rank?limit=20&use_adv=1";
 
       const rankListEl = document.getElementById("rank-list");
       const loadingEl = document.getElementById("rank-loading");
@@ -155,7 +156,8 @@
     </script>
     <script>
       document.getElementById("inquiry-tab").addEventListener("click", () => {
-        window.location.href = "inquiry.html";
+        //window.location.href = "inquiry.html";
+        window.location.href = "/inquiry";
       });
     </script>
   </body>

@@ -11,7 +11,7 @@ app.json.ensure_ascii = False
 def get_conn():
     return pymysql.connect(
         host='localhost',
-        user='root',
+        user='food',
         password='fooddb',  
         db='fooddb',
         charset='utf8mb4',
