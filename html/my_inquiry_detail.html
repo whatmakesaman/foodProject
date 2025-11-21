@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 문의 상세</title>
+</head>
+<body>
+
+<h1>내 문의 상세</h1>
+
+<p><b>문의번호:</b> {{ inquiry.inquiry_id }}</p>
+<p><b>제목:</b> {{ inquiry.title }}</p>
+<p><b>작성자:</b> {{ inquiry.writer or '-' }}</p>
+<p><b>분야:</b> {{ inquiry.field or '-' }}</p>
+<p><b>작성일:</b> {{ inquiry.created_at }}</p>
+
+<hr>
+
+<h3>문의 내용</h3>
+<p>{{ inquiry.content }}</p>
+
+<hr>
+
+<h3>관리자 답변</h3>
+{% if inquiry.answer %}
+    <p>{{ inquiry.answer }}</p>
+{% else %}
+    <p>아직 답변이 등록되지 않았습니다. 조금만 기다려 주세요.</p>
+{% endif %}
+
+<p>
+    <a href="/my/inquiries">내 문의 목록으로</a> |
+    <a href="/inquiry">새 문의 작성</a>
+</p>
+
+</body>
+</html>
