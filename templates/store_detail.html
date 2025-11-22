@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>매장 상세 정보</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- static/Home.css -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
+
+  <!-- static/css/form-style.css -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}">
+
+  <!-- static/store_detail.css -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='store_detail.css') }}">
+</head>
+
+  <body>
+    <header class="top-nav">
+      <div class="nav-left">
+        <span class="form-title-text">미식의 왕</span>
+      </div>
+      <div class="nav-right">
+        <div class="profile-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="form-container">
+        <!-- 매장 기본 정보 카드 -->
+        <div class="form-card" id="store-info-card">
+          <div class="store-info-header">
+            <button
+              class="back-btn-inline"
+              id="back-btn-inline"
+              title="뒤로가기"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+                />
+              </svg>
+            </button>
+            <div class="form-header">
+              <h2 class="store-name" id="store-name">로딩 중...</h2>
+              <div class="store-meta">
+                <span id="store-address"></span>
+                <span id="store-phone"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 통계 정보 카드 -->
+        <div class="form-card" id="stats-card">
+          <div class="form-header">
+            <h3>매장 정보</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">평균 평점</span>
+                <span class="stat-value" id="avg-rating">-</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">리뷰 수</span>
+                <span class="stat-value" id="review-count">-</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">베이지안 점수</span>
+                <span class="stat-value" id="bayes-score">-</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">주소</span>
+                <span class="stat-value" id="store_address">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 영업시간 정보 -->
+        <div class="form-card" id="hours-card">
+          <div class="form-header">
+            <h3>영업시간</h3>
+            <div class="hours-info">
+              <span id="open-time">-</span> ~ <span id="close-time">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메뉴 목록 카드 -->
+        <div class="form-card" id="menu-card">
+          <div class="form-header">
+            <h3>메뉴</h3>
+            <div id="menu-list" class="menu-list">
+              <!-- 메뉴 목록이 여기에 동적으로 추가됨 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 리뷰 목록 카드 -->
+        <div class="form-card" id="reviews-card">
+          <div class="form-header">
+            <h3>최근 리뷰</h3>
+            <div id="reviews-list" class="reviews-list">
+              <!-- 리뷰 목록이 여기에 동적으로 추가됨 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 로딩/에러 메시지 -->
+        <div id="loading-message" class="loading-message">
+          매장 정보를 불러오는 중...
+        </div>
+        <div
+          id="error-message"
+          class="error-message"
+          style="display: none"
+        ></div>
+      </div>
+    </main>
+
+    <script>
+      const STORE_ID = {{ store_id|default(1) }};
+
+      async function loadStoreDetail() {
+        const loadingEl = document.getElementById("loading-message");
+        const errorEl = document.getElementById("error-message");
+        const storeInfoCard = document.getElementById("store-info-card");
+        const statsCard = document.getElementById("stats-card");
+        const hoursCard = document.getElementById("hours-card");
+        const menuCard = document.getElementById("menu-card");
+        const reviewsCard = document.getElementById("reviews-card");
+
+        try {
+          const res = await fetch(`/api/stores/${STORE_ID}/detail`);
+
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            errorEl.textContent = errorData.error || "매장 정보를 불러올 수 없습니다.";
+            errorEl.style.display = "block";
+            loadingEl.style.display = "none";
+            return;
+          }
+
+          const data = await res.json();
+          loadingEl.style.display = "none";
+
+          // 매장 기본 정보
+          document.getElementById("store-name").textContent = data.store.name || "이름 없음";
+          document.getElementById("store-address").textContent = data.store.address || "-";
+          document.getElementById("store-phone").textContent = data.store.phone || "-";
+
+          // 통계 정보
+          document.getElementById("avg-rating").textContent =
+            data.stats.avg_rating ? Number(data.stats.avg_rating).toFixed(2) : "-";
+          document.getElementById("review-count").textContent =
+            data.stats.review_cnt || 0;
+          document.getElementById("bayes-score").textContent =
+            data.stats.bayes_score ? Number(data.stats.bayes_score).toFixed(3) : "-";
+          document.getElementById("store_address").textContent =
+            data.store.address ? data.store.address : "-";
+
+          // 영업시간
+          document.getElementById("open-time").textContent = data.store.open_time || "-";
+          document.getElementById("close-time").textContent = data.store.close_time || "-";
+
+          // 메뉴 목록
+          const menuListEl = document.getElementById("menu-list");
+          if (data.menus && data.menus.length > 0) {
+            menuListEl.innerHTML = data.menus.map(menu => `
+              <div class="menu-item">
+                <span class="menu-name">${menu.name}</span>
+                <span class="menu-price">${menu.price ? menu.price.toLocaleString() + "원" : "-"}</span>
+                ${menu.recommend ? `<span class="menu-recommend">추천</span>` : ""}
+              </div>
+            `).join("");
+          } else {
+            menuListEl.innerHTML = '<div class="no-data">등록된 메뉴가 없습니다.</div>';
+          }
+
+          // 리뷰 목록
+          const reviewsListEl = document.getElementById("reviews-list");
+          if (data.reviews && data.reviews.length > 0) {
+            reviewsListEl.innerHTML = data.reviews.map(review => `
+              <div class="review-item">
+                <div class="review-header">
+                  <span class="review-rating">⭐ ${review.rating}</span>
+                  <span class="review-date">${review.created_at || ""}</span>
+                </div>
+                <div class="review-content">${review.content || ""}</div>
+                ${review.helpful_cnt > 0 ? `<div class="review-helpful">도움 ${review.helpful_cnt}개</div>` : ""}
+              </div>
+            `).join("");
+          } else {
+            reviewsListEl.innerHTML = '<div class="no-data">등록된 리뷰가 없습니다.</div>';
+          }
+
+          // 카드들 표시
+          storeInfoCard.style.display = "block";
+          statsCard.style.display = "block";
+          hoursCard.style.display = "block";
+          menuCard.style.display = "block";
+          reviewsCard.style.display = "block";
+
+        } catch (err) {
+          console.error("매장 정보 불러오기 실패:", err);
+          errorEl.textContent = "매장 정보를 불러오는 중 오류가 발생했습니다.";
+          errorEl.style.display = "block";
+          loadingEl.style.display = "none";
+        }
+      }
+
+      // 인라인 뒤로가기 버튼
+      document.getElementById("back-btn-inline").addEventListener("click", () => {
+        window.location.href = "/ranking";
+      });
+
+      // 페이지 로드 시 데이터 불러오기
+      window.onload = loadStoreDetail;
+    </script>
+  </body>
+</html>

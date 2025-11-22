@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>문의 상세</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- 상단 네비게이션 -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <div class="form-icon">📄</div>
+            <div class="form-title-group">
+                <span class="form-title-text">문의 상세</span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <button class="publish-btn" onclick="location.href='ranking.html'">랭킹 돌아가기</button>
+            <div class="profile-icon">U</div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <div class="main-content">
+
+        <!-- 탭 메뉴 -->
+        <div class="tab-menu">
+            <button class="tab-btn" onclick="location.href='ranking.html'">랭킹</button>
+            <button class="tab-btn active" onclick="location.href='my_inquiry_list.html'">문의</button>
+        </div>
+
+        <!-- 상세 내용 카드 -->
+        <div class="form-card">
+            <h2 style="margin-bottom: 12px;">문의 상세 보기</h2>
+
+            <p><strong>제목</strong></p>
+            <p id="title" style="margin-bottom: 16px;"></p>
+
+            <p><strong>작성자</strong></p>
+            <p id="writer" style="margin-bottom: 16px;"></p>
+
+            <p><strong>작성일</strong></p>
+            <p id="date" style="margin-bottom: 16px;"></p>
+
+            <p><strong>분야</strong></p>
+            <p id="field" style="margin-bottom: 16px;"></p>
+
+            <p><strong>내용</strong></p>
+            <p id="content" style="margin-bottom: 16px;"></p>
+
+            <p><strong>답변</strong></p>
+            <p id="answer" style="margin-bottom: 16px;"></p>
+
+            <button class="publish-btn" onclick="history.back()">뒤로가기</button>
+        </div>
+
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+
+        fetch(`http://localhost:5000/inquiry/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("title").innerText = data.title;
+                document.getElementById("writer").innerText = data.writer;
+                document.getElementById("date").innerText = data.created_at;
+                document.getElementById("field").innerText = data.field;
+                document.getElementById("content").innerText = data.content;
+
+                if (data.answer === null || data.answer === "") {
+                    document.getElementById("answer").innerText = "아직 답변이 등록되지 않았습니다.";
+                } else {
+                    document.getElementById("answer").innerText = data.answer;
+                }
+            });
+    </script>
+
+</body>
+</html>

@@ -1,11 +1,14 @@
 SET NAMES utf8mb4;
 
-
-
+-- =========================================================
+-- 스키마 생성 및 사용
+-- =========================================================
+DROP SCHEMA IF EXISTS `fooddb`;
+CREATE SCHEMA IF NOT EXISTS `fooddb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `fooddb`;
 
 -- =========================================================
--- 최소 의존성 테이블: category, a
+-- 최소 의존성 테이블: category, app_user
 -- =========================================================
 DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category` (
@@ -18,10 +21,22 @@ CREATE TABLE `category` (
 INSERT INTO `category` (`name`)
 VALUES ('한식'), ('중식'), ('양식'), ('일식'), ('분식'), ('카페'), ('디저트');
 
--- INSERT INTO category (category_id, name)
--- VALUES (1, '한식'),(2,'중식'),(3,'양식'),(4,'일식'),(5,'분식'),(6,'카페'),(7,'디저트');
+INSERT INTO category (category_id, name)
+VALUES (1, '한식'),(2,'중식'),(3,'양식'),(4,'일식'),(5,'분식'),(6,'카페'),(7,'디저트');
 
 
+DROP TABLE IF EXISTS `app_user`;
+CREATE TABLE `app_user` (
+  `user_id`    INT NOT NULL AUTO_INCREMENT COMMENT '사용자의 id',
+  `name`       VARCHAR(30) NOT NULL,
+  `pw`         VARCHAR(100) NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_user_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 테스트 사용자(선택)
+INSERT INTO `app_user` (name, pw) VALUES ('준혁','1234'),('홍길동','abcd'),('김코딩','pass');
 
 -- =========================================================
 -- 핵심 1) store
@@ -144,7 +159,7 @@ CREATE TABLE `review` (
   KEY `idx_review_user` (`user_id`),
   KEY `idx_review_store_created` (`store_id`, `created_at`),
   CONSTRAINT `fk_review_user`
-    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`)   --팀원 user 테이블 쓰기로 한 것”이랑 연결되는 부분
+    FOREIGN KEY (`user_id`) REFERENCES `app_user`(`user_id`)
     ON UPDATE RESTRICT ON DELETE CASCADE,
   CONSTRAINT `fk_review_store`
     FOREIGN KEY (`store_id`) REFERENCES `store`(`store_id`)
@@ -152,59 +167,13 @@ CREATE TABLE `review` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 샘플 리뷰(선택)
- USE fooddb;
-
-INSERT INTO review (user_id, store_id, content, rating, created_at) VALUES
--- 1. 금성이네
-(1, 1, '김치찌개 진짜 맛있어요. 밥 추가 필수.', 5, NOW()),
-(1, 1, '반찬이 깔끔하고 양도 넉넉해요.', 4, NOW()),
-(1, 1, '맛은 좋은데 피크 시간엔 조금 시끄러워요.', 4, NOW()),
-
--- 2. 쭈꾸미삼겹살
-(1, 2, '쭈꾸미가 매콤한데 자극적이지 않아서 좋았어요.', 4, NOW()),
-(1, 2, '삼겹살이랑 같이 먹으니까 진짜 맛있음.', 5, NOW()),
-(1, 2, '양은 살짝 아쉽지만 맛은 인정.', 4, NOW()),
-
--- 3. 24시 수육국밥
-(1, 3, '국물 진하고 속 든든해서 야식으로 최고.', 4, NOW()),
-(1, 3, '24시간이라 새벽에 가기 좋았어요.', 5, NOW()),
-(1, 3, '고기는 조금 적지만 국물 맛 하나로 커버.', 4, NOW()),
-
--- 4. 고향 칼국수
-(1, 4, '바지락 많이 들어있고 국물 시원해요.', 5, NOW()),
-(1, 4, '들깨칼국수 고소해서 겨울에 생각날 맛.', 4, NOW()),
-(1, 4, '점심시간에는 줄 서야 해서 조금 힘들었음.', 4, NOW()),
-
--- 5. 국민 낙곱새
-(1, 5, '밥도둑 인정… 볶음밥 꼭 추가해야 함.', 5, NOW()),
-(1, 5, '매운 정도가 딱 적당해서 좋았어요.', 4, NOW()),
-(1, 5, '기대보다 괜찮았고 재방문 의사 있음.', 4, NOW()),
-
--- 6. 더베이징
-(1, 6, '짜장면이 너무 달지 않고 딱 좋아요.', 4, NOW()),
-(1, 6, '짬뽕 국물 깔끔하고 해산물도 많았어요.', 5, NOW()),
-(1, 6, '탕수육 소스가 과하지 않아서 좋았음.', 4, NOW()),
-
--- 7. 라홍방 마라탕
-(1, 7, '처음 먹어본 마라탕인데 생각보다 안 맵고 맛있었어요.', 4, NOW()),
-(1, 7, '마라샹궈에 재료 고르는 재미가 있음.', 5, NOW()),
-(1, 7, '꿔바로우 튀김이 바삭해서 만족.', 4, NOW()),
-
--- 8. 회전훠궈핫
-(1, 8, '훠궈 국물 베이스가 두 가지라 골라 먹기 좋음.', 5, NOW()),
-(1, 8, '고기 리필 잘 해줘서 배 터지게 먹었어요.', 4, NOW()),
-(1, 8, '조금 시끄럽지만 친구들이랑 가기 좋음.', 4, NOW()),
-
--- 9. 짬뽕관
-(1, 9, '불짬뽕 진짜 칼칼하고 해장에 최고.', 5, NOW()),
-(1, 9, '차돌짬뽕 고기가 많이 들어있어서 만족.', 4, NOW()),
-(1, 9, '군만두는 평범했지만 짬뽕은 강추.', 4, NOW()),
-
--- 10. 니뽕내뽕
-(1, 10, '니뽕짬뽕은 기본인데 국물이 깊어요.', 5, NOW()),
-(1, 10, '크림뽕 처음 먹어봤는데 의외로 잘 어울림.', 4, NOW()),
-(1, 10, '로제뽕은 조금 느끼했지만 또 생각나는 맛.', 4, NOW());
-
+INSERT INTO `review` (user_id, store_id, content, rating, helpful_cnt)
+VALUES
+(1, 1, '국물 진하고 밥이랑 잘 맞음', 5, 2),
+(2, 1, '양 푸짐함', 4, 1),
+(3, 2, '짜장 달달함', 4, 0),
+(1, 2, '짬뽕 국물이 시원', 5, 3),
+(2, 3, '면 삶기 좋음', 4, 0);
 
 -- =========================================================
 -- 랭킹용 뷰(간단 평균 + 리뷰수 가중 정렬) & 고급(베이지안) 점수
@@ -244,7 +213,7 @@ store_stats AS (
     COUNT(r.review_id)         AS v
   FROM store s
   LEFT JOIN review r ON r.store_id = s.store_id
-  GROUP BY s.store_id, s.name, s.address, s.distance_km
+  GROUP BY s.store_id, s.name, s.address, s.distance_km;
 
 )
 SELECT

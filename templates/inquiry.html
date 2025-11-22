@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>문의 작성</title>
+  <!-- 랭킹 화면에서 쓰는 구글 폼 스타일 CSS -->
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}">
+
+</head>
+<body>
+  <!-- 상단 네비게이션 바 -->
+  <div class="top-nav">
+    <div class="nav-left">
+      <div class="form-icon">
+        <strong>✉️</strong>
+      </div>
+      <div class="form-title-group">
+        <div class="form-title-text">문의 작성</div>
+      </div>
+    </div>
+
+    <div class="nav-center"></div>
+
+    <div class="nav-right">
+      <button class="publish-btn" id="to-ranking-btn">랭킹 보기</button>
+      <button class="more-btn">⋮</button>
+      <div class="profile-icon">U</div>
+    </div>
+  </div>
+
+  <!-- 메인 콘텐츠 -->
+  <div class="main-content">
+    <div class="tab-menu">
+      <button class="tab-btn" id="rank-tab">랭킹</button>
+      <button class="tab-btn active">문의</button>
+    </div>
+
+    <div class="form-container">
+      <!-- 상단 설명 카드 -->
+      <div class="form-card">
+        <div class="form-header">
+          <input
+            class="form-title-input"
+            type="text"
+            value="문의 작성"
+            readonly
+          />
+          <div class="form-description">
+            <input
+              class="form-description-input"
+              type="text"
+              value="서비스 이용 중 생긴 궁금한 점이나 건의사항을 자유롭게 남겨주세요."
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 실제 문의 입력 카드 -->
+      <div class="question-card">
+        <div class="question-content">
+          <form id="inquiryForm">
+            <!-- 나중엔 세션에서 user_id 가져올 것 -->
+            <input type="hidden" id="user_id" value="1">
+
+            <div class="question-options">
+              <div class="option-item">
+                <label for="title" style="min-width:80px;">제목</label>
+                <input
+                  type="text"
+                  id="title"
+                  class="option-input"
+                  required
+                  placeholder="문의 제목을 입력하세요"
+                />
+              </div>
+
+              <div class="option-item">
+                <label for="writer" style="min-width:80px;">작성자</label>
+                <input
+                  type="text"
+                  id="writer"
+                  class="option-input"
+                  placeholder="선택사항 (닉네임)"
+                />
+              </div>
+
+              <div class="option-item">
+                <label for="field" style="min-width:80px;">분야</label>
+                <input
+                  type="text"
+                  id="field"
+                  class="option-input"
+                  placeholder="예: 리뷰, 계정, 기타"
+                />
+              </div>
+
+              <div class="option-item" style="align-items:flex-start;">
+                <label for="content" style="min-width:80px; padding-top:8px;">내용</label>
+                <textarea
+                  id="content"
+                  rows="5"
+                  class="option-input"
+                  style="resize: vertical;"
+                  required
+                  placeholder="문의 내용을 자세히 입력해주세요."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="question-footer" style="justify-content: flex-start;">
+              <button type="submit" class="publish-btn">
+                문의 등록
+              </button>
+              <button type="button" class="footer-btn" id="my-inquiries-btn" title="내 문의 목록 보기">
+                내 문의 목록 보기
+              </button>
+              <span id="message" style="margin-left:16px; font-size:14px;"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  // 탭/버튼 이동 ---------------------------
+  document.getElementById("rank-tab").addEventListener("click", () => {
+    // Flask 라우트(/ranking)로 이동
+    window.location.href = "/ranking";
+  });
+
+  document.getElementById("to-ranking-btn").addEventListener("click", () => {
+    window.location.href = "/ranking";
+  });
+
+  document.getElementById("my-inquiries-btn").addEventListener("click", () => {
+    // 내 문의 목록 페이지 (Flask에서 /my_inquiry_list.html 라우트 있다고 가정)
+    window.location.href = "/my_inquiry_list";
+  });
+
+
+  // 문의 등록 폼 제출 처리 -------------------
+  document.getElementById("inquiryForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const msg = document.getElementById("message");
+
+    // 🔥 로그인 토큰 확인
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("로그인 후 이용해주세요.");
+      window.location.href = "/login.html";
+      return;
+    }
+
+    // 폼 데이터 읽기
+    const data = {
+      title:   document.getElementById("title").value,
+      field:   document.getElementById("field").value,
+      content: document.getElementById("content").value
+      // user_id, writer는 서버에서 토큰으로 처리하므로 안 보내도 됨
+    };
+
+    msg.style.color = "#5f6368";
+    msg.textContent = "등록 중입니다...";
+
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 🔥 꼭 필요: JWT 토큰
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        msg.textContent = `문의가 등록되었습니다! (문의번호: ${result.inquiry_id})`;
+        msg.style.color = "#188038"; // 초록색
+
+        // 폼 초기화
+        document.getElementById("title").value = "";
+        document.getElementById("writer").value = "";
+        document.getElementById("field").value = "";
+        document.getElementById("content").value = "";
+      } else {
+        msg.textContent = result.error || result.message || "에러 발생";
+        msg.style.color = "#d93025"; // 빨간색
+      }
+    } catch (error) {
+      console.error(error);
+      msg.textContent = "서버와 통신 중 오류가 발생했습니다.";
+      msg.style.color = "#d93025";
+    }
+  });
+</script>
+
+</body>
+</html>

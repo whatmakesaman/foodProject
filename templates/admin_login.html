@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 로그인</title>
+</head>
+<body>
+
+<h2>관리자 로그인</h2>
+
+<form id="admin-login-form">
+    <p>관리자 아이디:
+        <input type="text" id="admin_login_id" required>
+    </p>
+
+    <p>비밀번호:
+        <input type="password" id="admin_password" required>
+    </p>
+
+    <button type="submit">로그인</button>
+</form>
+
+<script>
+document.getElementById("admin-login-form").addEventListener("submit", async function (e) {
+    e.preventDefault(); // 기본 form 전송 막기
+
+    const loginId = document.getElementById("admin_login_id").value;
+    const password = document.getElementById("admin_password").value;
+
+    try {
+        const res = await fetch("http://localhost:5000/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                login_id: loginId,
+                password: password
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || "관리자 로그인 실패");
+            return;
+        }
+
+        // 🔐 관리자 토큰 저장 (같은 key 써도 되고 따로 써도 됨)
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("adminName", data.admin.admin_name);
+        localStorage.setItem("adminId", data.admin.admin_id);
+
+        // ✅ 관리자 전용 문의 페이지로 이동 (파일 이름 맞게 수정!)
+        window.location.href = "/admin_inquiry_list.html";
+    } catch (err) {
+        console.error(err);
+        alert("서버 오류");
+    }
+});
+</script>
+
+</body>
+</html>

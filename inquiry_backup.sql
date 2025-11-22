@@ -1,8 +1,3 @@
-USE fooddb;
-
--
-DROP TABLE IF EXISTS inquiry;
-
 CREATE TABLE `inquiry` (
   `inquiry_id` INT NOT NULL AUTO_INCREMENT,
   `user_id`    INT NOT NULL COMMENT '사용자의 id',
@@ -15,6 +10,6 @@ CREATE TABLE `inquiry` (
   PRIMARY KEY (`inquiry_id`),
   KEY `idx_inquiry_user` (`user_id`),
   CONSTRAINT `fk_inquiry_user`
-    FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`)
+    FOREIGN KEY (`user_id`) REFERENCES `app_user`(`user_id`)
     ON UPDATE RESTRICT ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

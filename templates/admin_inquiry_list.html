@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>전체 문의 관리</title>
+  <link rel="stylesheet" href="form-style.css">
+</head>
+<body>
+  <!-- 상단 네비 -->
+  <div class="top-nav">
+    <div class="nav-left">
+      <div class="form-icon"><strong>📄</strong></div>
+      <div class="form-title-group">
+        <div class="form-title-text">전체 문의 관리</div>
+      </div>
+    </div>
+
+    <div class="nav-center"></div>
+
+    <div class="nav-right">
+      <button class="publish-btn" onclick="location.href='ranking.html'">랭킹 보기</button>
+      <div class="profile-icon">A</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="tab-menu">
+      <button class="tab-btn" onclick="location.href='ranking.html'">랭킹</button>
+      <button class="tab-btn active">문의</button>
+    </div>
+
+    <div class="form-container">
+      <div class="form-card">
+        <div class="form-header">
+          <input class="form-title-input" type="text"
+                 value="전체 사용자 문의 목록" readonly />
+          <div class="form-description">
+            <input class="form-description-input" type="text"
+                   value="답변이 필요한 문의를 선택해 답변을 작성하세요." readonly />
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-inquiry-list"></div>
+      <div id="admin-msg" style="margin-top:12px; color:#5f6368;"></div>
+    </div>
+  </div>
+
+  <script>
+    const LIST_API_URL = "http://localhost:5000/api/inquiries_all"; // 아래에서 라우트 만들면 됨
+
+    const listEl = document.getElementById("admin-inquiry-list");
+    const msgEl = document.getElementById("admin-msg");
+
+    async function loadAllInquiries() {
+      msgEl.textContent = "문의 목록을 불러오는 중입니다...";
+      listEl.innerHTML = "";
+
+      try {
+        const res = await fetch(LIST_API_URL);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          msgEl.textContent = "등록된 문의가 없습니다.";
+          return;
+        }
+
+        msgEl.textContent = "";
+
+        data.forEach(inq => {
+          const card = document.createElement("div");
+          card.className = "question-card";
+
+          const answered = inq.answer && inq.answer.trim().length > 0;
+
+          card.innerHTML = `
+            <div class="question-content">
+              <div class="question-header">
+                <div class="question-title-input" style="border-bottom:none;">
+                  [${answered ? "답변 완료" : "답변 대기"}] ${inq.title || "(제목 없음)"}
+                </div>
+              </div>
+              <div class="question-options">
+                <div class="option-item">
+                  <span>작성자: ${inq.writer || "-"}</span>
+                </div>
+                <div class="option-item">
+                  <span>작성일: ${inq.created_at || ""}</span>
+                </div>
+                <div class="option-item">
+                  <span>분야: ${inq.field || "-"}</span>
+                </div>
+                <div class="option-item">
+                  <button class="publish-btn"
+                          onclick="location.href='admin_answer.html?id=${inq.inquiry_id}'">
+                    답변 작성 / 수정
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+
+          listEl.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        msgEl.style.color = "#d93025";
+        msgEl.textContent = "문의 목록을 불러오는 중 오류가 발생했습니다.";
+      }
+    }
+
+    loadAllInquiries();
+  </script>
+</body>
+</html>

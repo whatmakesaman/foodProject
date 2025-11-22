@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>문의 답변 작성</title>
+  <link rel="stylesheet" href="form-style.css">
+</head>
+<body>
+  <div class="top-nav">
+    <div class="nav-left">
+      <div class="form-icon"><strong>📄</strong></div>
+      <div class="form-title-group">
+        <div class="form-title-text">문의 답변 작성</div>
+      </div>
+    </div>
+
+    <div class="nav-center"></div>
+
+    <div class="nav-right">
+      <button class="publish-btn" onclick="location.href='admin_inquiry_list.html'">
+        목록으로
+      </button>
+      <div class="profile-icon">A</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="tab-menu">
+      <button class="tab-btn" onclick="location.href='ranking.html'">랭킹</button>
+      <button class="tab-btn active" onclick="location.href='admin_inquiry_list.html'">문의</button>
+    </div>
+
+    <div class="form-container">
+      <div class="form-card">
+        <div class="form-header">
+          <input id="title" class="form-title-input" type="text" value="" readonly />
+          <div class="form-description">
+            <input id="meta" class="form-description-input" type="text" value="" readonly />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p><strong>문의 내용</strong></p>
+        <p id="content" style="margin: 12px 0 20px 0;"></p>
+
+        <p><strong>답변 입력</strong></p>
+        <textarea id="answer-input" rows="5"
+                  style="width:100%; margin-top:8px; padding:8px;"></textarea>
+
+        <button class="publish-btn" style="margin-top:16px;" id="save-btn">
+          저장하기
+        </button>
+      </div>
+
+      <div id="msg" style="margin-top:12px; color:#5f6368;"></div>
+    </div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("inquiry_id");   // ← inquiry_id로 받기
+
+  const titleEl = document.getElementById("title");
+  const metaEl = document.getElementById("meta");
+  const contentEl = document.getElementById("content");
+  const answerInput = document.getElementById("answer-input");
+  const msgEl = document.getElementById("msg");
+
+  async function loadInquiry() {
+    // id가 아예 없으면 여기서 막기
+    if (!id) {
+      msgEl.style.color = "#d93025";
+      msgEl.textContent =
+        "문의 ID가 주소에 없습니다. 문의 목록 화면에서 '답변하기' 버튼으로 들어와 주세요.";
+      console.error("쿼리스트링에 inquiry_id 없음");
+      return;
+    }
+
+    const DETAIL_API = `http://localhost:5000/api/inquiries/${id}`;
+    console.log("DETAIL_API =", DETAIL_API);
+
+    try {
+      const res = await fetch(DETAIL_API);
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("서버 응답 에러:", res.status, text);
+        msgEl.style.color = "#d93025";
+        msgEl.textContent = `문의 정보를 불러오는데 실패했습니다. (HTTP ${res.status})`;
+        return;
+      }
+
+      const data = await res.json();
+      console.log("서버에서 받은 데이터:", data);
+
+      if (data.error) {
+        msgEl.style.color = "#d93025";
+        msgEl.textContent = data.error;
+        return;
+      }
+
+      titleEl.value = data.title || "(제목 없음)";
+      metaEl.value = `작성자: ${data.writer || "-"} / 작성일: ${
+        data.created_at || ""
+      } / 분야: ${data.field || "-"}`;
+      contentEl.textContent = data.content || "";
+
+      if (data.answer) {
+        answerInput.value = data.answer;
+      }
+
+      msgEl.textContent = ""; // 에러 문구 초기화
+    } catch (err) {
+      console.error("loadInquiry 오류:", err);
+      msgEl.style.color = "#d93025";
+      msgEl.textContent = "문의 정보를 불러오는 중 오류가 발생했습니다.";
+    }
+  }
+
+  async function saveAnswer() {
+    const answer = answerInput.value.trim();
+    if (!answer) {
+      alert("답변 내용을 입력해 주세요.");
+      return;
+    }
+    if (!id) {
+      alert("문의 ID가 없습니다. 주소를 다시 확인해 주세요.");
+      return;
+    }
+
+    const ANSWER_API = `http://localhost:5000/api/inquiries/${id}/answer`;
+
+    try {
+      const res = await fetch(ANSWER_API, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answer }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "저장에 실패했습니다.");
+        return;
+      }
+
+      msgEl.style.color = "#188038";
+      msgEl.textContent = "답변이 저장되었습니다.";
+      alert("답변이 저장되었습니다.");
+      // location.href = 'admin_inquiry_list.html';
+    } catch (err) {
+      console.error("saveAnswer 오류:", err);
+      alert("오류가 발생했습니다.");
+    }
+  }
+
+  document.getElementById("save-btn").addEventListener("click", saveAnswer);
+
+  // 페이지 들어오면 바로 로딩
+  loadInquiry();
+</script>
+</body>
+</html>

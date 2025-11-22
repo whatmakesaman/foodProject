@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+</head>
+<body>
+
+<h2>회원가입</h2>
+
+<form action="/signup" method="post">
+
+    <p>로그인 아이디: 
+        <input type="text" name="login_id" required>
+    </p>
+
+    <p>비밀번호:
+        <input type="password" name="pw" required>
+    </p>
+
+    <p>이름:
+        <input type="text" name="name" required>
+    </p>
+
+    <p>사용자 유형:
+        <select name="type" id="type" onchange="toggleType()">
+            <option value="student">학생</option>
+            <option value="provider">사장</option>
+        </select>
+    </p>
+
+    <!-- 학생 -->
+    <div id="student_box">
+        <p>학교명:
+            <input type="text" name="school">
+        </p>
+        <p>학번:
+            <input type="number" name="student_id">
+        </p>
+    </div>
+
+    <!-- 사장 -->
+    <div id="provider_box" style="display:none;">
+        <p>가게명:
+            <input type="text" name="store_name">
+        </p>
+        <p>사업자등록번호:
+            <input type="number" name="business_number">
+        </p>
+    </div>
+
+    <button type="submit">회원가입</button>
+</form>
+
+<script>
+function toggleType() {
+    const type = document.getElementById("type").value;
+    document.getElementById("student_box").style.display =
+        (type === "student") ? "block" : "none";
+    document.getElementById("provider_box").style.display =
+        (type === "provider") ? "block" : "none";
+}
+</script>
+
+</body>
+</html>
