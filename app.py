@@ -11,6 +11,8 @@ from functools import wraps
 
 # store_info Blueprint import
 from store_info import bp as store_info_bp
+# store_admin Blueprint import
+from store_admin import bp as store_admin_bp
 
 
 # ======================
@@ -22,8 +24,9 @@ CORS(app)  # 프론트와 포트 달라도 요청 가능하게
 
 app.config['SECRET_KEY'] = 'login'  # 나중에 더 복잡한 문자열로 바꿔도 됨
 
-# Blueprint 등록 (store_info)
+# Blueprint 등록
 app.register_blueprint(store_info_bp)
+app.register_blueprint(store_admin_bp)
 
 
 # ======================

@@ -1,31 +1,41 @@
-from flask import Flask, request, jsonify
+"""
+store_admin.py
+----------------------------------------
+관리자용 매장 관리 API
+- GET /api/stores/<store_id> : 매장 정보 조회
+- PUT /api/stores/<store_id> : 매장 정보 수정
+- DELETE /api/stores/<store_id> : 매장 삭제
+"""
+
+from flask import Blueprint, request, jsonify
 import pymysql
+from datetime import timedelta
+import decimal
 
+bp = Blueprint('store_admin', __name__)
 
-app = Flask(__name__)
-app.json.ensure_ascii = False  # 한글 깨짐 방지
-
-def get_conn():
+def get_connection():
     """MySQL 연결을 생성합니다."""
     return pymysql.connect(
         host="localhost",
         user="root",
-        password="fooddb",
-        db="fooddb",
+        password="root",
+        db="foodfood",
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
     )
+
 # =========================================================
 # [관리자] 매장 정보 조회 (수정 페이지 진입용)
 #  GET /api/stores/<store_id>
 # =========================================================
-@app.route("/api/stores/<int:store_id>", methods=["GET"])
+@bp.route("/api/stores/<int:store_id>", methods=["GET"])
 def get_store(store_id):
     """
     매장 정보 수정 페이지에 들어갈 때,
     선택한 매장의 현재 정보를 조회하여 반환합니다.
     """
-    conn = get_conn()
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             sql = """
@@ -33,15 +43,37 @@ def get_store(store_id):
                     store_id,
                     name,
                     address,
-                    `open`,
-                    `close`,
+                    open_time AS `open`,
+                    close_time AS `close`,
                     phone,
-                    distance
+                    distance_km AS distance
                 FROM store
                 WHERE store_id = %s
             """
             cur.execute(sql, (store_id,))
             row = cur.fetchone()
+            
+            if row:
+                # open_time, close_time이 timedelta인 경우 문자열로 변환
+                if isinstance(row.get("open"), timedelta):
+                    total_seconds = row["open"].seconds
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    row["open"] = f"{hours:02d}:{minutes:02d}"
+                
+                if isinstance(row.get("close"), timedelta):
+                    total_seconds = row["close"].seconds
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    row["close"] = f"{hours:02d}:{minutes:02d}"
+                
+                # distance가 Decimal 타입인 경우 float로 변환
+                if row.get("distance") is not None and isinstance(row.get("distance"), decimal.Decimal):
+                    row["distance"] = float(row["distance"])
+                    
+    except Exception as e:
+        print(f"매장 정보 조회 오류: {e}")
+        return jsonify({"error": "매장 정보를 불러오는 중 오류가 발생했습니다."}), 500
     finally:
         conn.close()
 
@@ -54,7 +86,7 @@ def get_store(store_id):
 # [관리자] 매장 정보 수정
 #  PUT /api/stores/<store_id>
 # =========================================================
-@app.route("/api/stores/<int:store_id>", methods=["PUT"])
+@bp.route("/api/stores/<int:store_id>", methods=["PUT"])
 def update_store(store_id):
     """
     매장 정보 수정 페이지에서 입력값을 수정 후 저장할 때 호출되는 API.
@@ -76,7 +108,7 @@ def update_store(store_id):
             jsonify({"error": "필수 항목(name, address)이 누락되었습니다."}),
             400,
         )
-    conn = get_conn()
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             # 매장 존재 여부 확인
@@ -89,18 +121,18 @@ def update_store(store_id):
             params = [name, address]
 
             if open_time is not None:
-                update_fields.append("`open` = %s")
+                update_fields.append("open_time = %s")
                 params.append(open_time)
 
             if close_time is not None:
-                update_fields.append("`close` = %s")
+                update_fields.append("close_time = %s")
                 params.append(close_time)
 
             if phone is not None:
                 update_fields.append("phone = %s")
                 params.append(phone)
             if distance is not None:
-                update_fields.append("distance = %s")
+                update_fields.append("distance_km = %s")
                 params.append(distance)
 
             params.append(store_id)
@@ -120,16 +152,38 @@ def update_store(store_id):
                     store_id,
                     name,
                     address,
-                    `open`,
-                    `close`,
+                    open_time AS `open`,
+                    close_time AS `close`,
                     phone,
-                    distance
+                    distance_km AS distance
                 FROM store
                 WHERE store_id = %s
                 """,
                 (store_id,),
             )
             updated = cur.fetchone()
+            
+            if updated:
+                # open_time, close_time이 timedelta인 경우 문자열로 변환
+                if isinstance(updated.get("open"), timedelta):
+                    total_seconds = updated["open"].seconds
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    updated["open"] = f"{hours:02d}:{minutes:02d}"
+                
+                if isinstance(updated.get("close"), timedelta):
+                    total_seconds = updated["close"].seconds
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    updated["close"] = f"{hours:02d}:{minutes:02d}"
+                
+                # distance가 Decimal 타입인 경우 float로 변환
+                if updated.get("distance") is not None and isinstance(updated.get("distance"), decimal.Decimal):
+                    updated["distance"] = float(updated["distance"])
+                    
+    except Exception as e:
+        print(f"매장 정보 수정 오류: {e}")
+        return jsonify({"error": "매장 정보를 수정하는 중 오류가 발생했습니다."}), 500
     finally:
         conn.close()
 
@@ -140,13 +194,13 @@ def update_store(store_id):
 # [관리자] 매장 삭제
 #  DELETE /api/stores/<store_id>
 # =========================================================
-@app.route("/api/stores/<int:store_id>", methods=["DELETE"])
+@bp.route("/api/stores/<int:store_id>", methods=["DELETE"])
 def delete_store(store_id):
     """
     매장 정보 수정 페이지에서 삭제 버튼을 눌렀을 때,
     해당 매장을 데이터베이스에서 제거합니다.
     """
-    conn = get_conn()
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             # 매장 존재 여부 확인
@@ -161,9 +215,4 @@ def delete_store(store_id):
         conn.close()
 
     return jsonify({"message": "매장이 삭제되었습니다."}), 200
-if __name__ == "__main__":
-    # 관리자용 매장 관리 서버 (포트 5000)
-    # *기존 inquiry.py와 동시에 실행 시 포트 충돌이 날 수 있으므로, 동시 실행 시에는
-    #  한쪽 포트를 변경하거나 각각 다른 터미널에서 순차 실행하세요.
-    app.run(debug=True, port=5000)
 

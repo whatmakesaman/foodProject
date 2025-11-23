@@ -26,7 +26,7 @@
   <body>
     <header class="top-nav">
       <div class="nav-left">
-        <span class="form-title-text">미식의 왕</span>
+        <span class="form-title-text">📄매장 상세 정보</span>
       </div>
       <div class="nav-right">
         <div class="profile-icon">
@@ -60,8 +60,25 @@
                 />
               </svg>
             </button>
-            <div class="form-header">
-              <h2 class="store-name" id="store-name">로딩 중...</h2>
+            <div class="form-header" style="flex: 1">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                "
+              >
+                <h2 class="store-name" id="store-name" style="margin: 0">
+                  로딩 중...
+                </h2>
+                <button
+                  id="edit-store-btn"
+                  class="publish-btn"
+                  style="display: none; margin-left: 16px"
+                >
+                  수정
+                </button>
+              </div>
               <div class="store-meta">
                 <span id="store-address"></span>
                 <span id="store-phone"></span>
@@ -286,7 +303,7 @@
               `
                 )
                 .join("");
-              
+
               // 관리자일 경우 리뷰 삭제 버튼 이벤트 리스너 추가
               if (isAdmin) {
                 reviewsListEl.querySelectorAll('.delete-review-btn').forEach(btn => {
@@ -312,11 +329,15 @@
             if (isAdmin) {
               const adminStoreActions = document.getElementById("admin-store-actions");
               const adminMenuActions = document.getElementById("admin-menu-actions");
+              const editStoreBtn = document.getElementById("edit-store-btn");
               if (adminStoreActions) {
                 adminStoreActions.style.display = "block";
               }
               if (adminMenuActions) {
                 adminMenuActions.style.display = "block";
+              }
+              if (editStoreBtn) {
+                editStoreBtn.style.display = "block";
               }
             }
           } catch (err) {
@@ -339,7 +360,15 @@
               window.location.href = "/ranking";
             }
           });
-        
+
+        // 매장 수정 버튼 클릭
+        const editStoreBtn = document.getElementById("edit-store-btn");
+        if (editStoreBtn) {
+          editStoreBtn.addEventListener("click", () => {
+            window.location.href = `/admin/store/${STORE_ID}`;
+          });
+        }
+
         // 브라우저 뒤로가기 버튼 처리
         window.addEventListener('popstate', function(event) {
           if (isAdmin) {
@@ -348,49 +377,10 @@
             window.location.href = "/ranking";
           }
         });
-        
+
         // 페이지 로드 시 히스토리에 현재 상태 추가
         history.pushState({ page: 'store_detail' }, '', window.location.href);
 
-        // ✅ 매장 정보 수정 버튼 클릭
-        if (document.getElementById("edit-store-btn")) {
-          document
-            .getElementById("edit-store-btn")
-            .addEventListener("click", async () => {
-              const currentName =
-                document.getElementById("store-name").textContent || "";
-              const currentAddress =
-                document.getElementById("store-address").textContent || "";
-              const currentPhone =
-                document.getElementById("store-phone").textContent || "";
-
-              const newName = prompt("새 매장 이름을 입력하세요", currentName);
-              if (!newName) return;
-
-              const newAddress = prompt(
-                "새 주소를 입력하세요 (취소 시 기존 값 유지)",
-                currentAddress
-              );
-              const newPhone = prompt(
-                "새 전화번호를 입력하세요 (취소 시 기존 값 유지)",
-                currentPhone
-              );
-
-              const res = await fetch(`/api/admin/store/${STORE_ID}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  name: newName,
-                  address: newAddress || currentAddress,
-                  phone: newPhone || currentPhone,
-                }),
-              });
-
-              const result = await res.json();
-              alert(result.message || "수정 완료");
-              loadStoreDetail();
-            });
-        }
 
         // ✅ 메뉴 추가 버튼 클릭
         if (document.getElementById("add-menu-btn")) {
