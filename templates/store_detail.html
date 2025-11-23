@@ -259,21 +259,43 @@
               reviewsListEl.innerHTML = data.reviews
                 .map(
                   (review) => `
-                <div class="review-item">
-                  <div class="review-header">
-                    <span class="review-rating">⭐ ${review.rating}</span>
-                    <span class="review-date">${review.created_at || ""}</span>
+                <div class="review-item" data-review-id="${review.review_id}">
+                  <div>
+                    <div class="review-header">
+                      <span class="review-rating">⭐ ${review.rating}</span>
+                      <span class="review-date">${review.created_at || ""}</span>
+                    </div>
+                    <div class="review-content">${review.content || ""}</div>
+                    ${
+                      review.helpful_cnt > 0
+                        ? `<div class="review-helpful">도움 ${review.helpful_cnt}개</div>`
+                        : ""
+                    }
                   </div>
-                  <div class="review-content">${review.content || ""}</div>
                   ${
-                    review.helpful_cnt > 0
-                      ? `<div class="review-helpful">도움 ${review.helpful_cnt}개</div>`
+                    isAdmin
+                      ? `
+                    <div class="review-admin-actions">
+                      <button class="publish-btn delete-review-btn" data-review-id="${review.review_id}">
+                        삭제
+                      </button>
+                    </div>`
                       : ""
                   }
                 </div>
               `
                 )
                 .join("");
+              
+              // 관리자일 경우 리뷰 삭제 버튼 이벤트 리스너 추가
+              if (isAdmin) {
+                reviewsListEl.querySelectorAll('.delete-review-btn').forEach(btn => {
+                  btn.addEventListener('click', function() {
+                    const reviewId = parseInt(this.dataset.reviewId);
+                    deleteReview(reviewId);
+                  });
+                });
+              }
             } else {
               reviewsListEl.innerHTML =
                 '<div class="no-data">등록된 리뷰가 없습니다.</div>';
@@ -310,8 +332,25 @@
         document
           .getElementById("back-btn-inline")
           .addEventListener("click", () => {
-            window.location.href = "/ranking";
+            // 관리자면 매장 검색 페이지로, 아니면 랭킹으로
+            if (isAdmin) {
+              window.location.href = "/admin/store/search";
+            } else {
+              window.location.href = "/ranking";
+            }
           });
+        
+        // 브라우저 뒤로가기 버튼 처리
+        window.addEventListener('popstate', function(event) {
+          if (isAdmin) {
+            window.location.href = "/admin/store/search";
+          } else {
+            window.location.href = "/ranking";
+          }
+        });
+        
+        // 페이지 로드 시 히스토리에 현재 상태 추가
+        history.pushState({ page: 'store_detail' }, '', window.location.href);
 
         // ✅ 매장 정보 수정 버튼 클릭
         if (document.getElementById("edit-store-btn")) {
@@ -438,6 +477,35 @@
           }
 
           alert(data.message || "메뉴 삭제 완료");
+          // 🔥 여기서 다시 상세 정보 로딩
+          await loadStoreDetail();
+
+        } catch (err) {
+          console.error(err);
+          alert("서버 오류가 발생했습니다.");
+        }
+      }
+
+      // ✅ 전역 함수: 리뷰 삭제 (review_id 필요)
+      async function deleteReview(reviewId) {
+        if (!confirm("정말 이 리뷰를 삭제하시겠습니까?")) {
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/admin/review/${reviewId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+          });
+
+          const data = await res.json().catch(() => ({}));
+
+          if (!res.ok) {
+            alert(data.message || "리뷰 삭제에 실패했습니다.");
+            return;
+          }
+
+          alert(data.message || "리뷰 삭제 완료");
           // 🔥 여기서 다시 상세 정보 로딩
           await loadStoreDetail();
 

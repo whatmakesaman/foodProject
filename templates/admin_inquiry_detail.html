@@ -132,6 +132,9 @@
       msgEl.style.color = "#188038";
       msgEl.textContent = "답변이 저장되었습니다.";
       alert("저장 완료!");
+      
+      // 저장 후 문의 목록으로 이동
+      window.location.href = "/admin_inquiry_list";
 
     } catch (err) {
       console.error(err);

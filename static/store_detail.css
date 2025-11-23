@@ -119,6 +119,9 @@
 }
 
 .review-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 16px;
   border: 1px solid #dadce0;
   border-radius: 8px;
@@ -129,6 +132,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 8px;
 }
 
@@ -153,6 +157,12 @@
 .review-helpful {
   font-size: 12px;
   color: #5f6368;
+}
+
+.review-admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .loading-message,

@@ -654,6 +654,24 @@ def admin_delete_menu(menu_id):
 
     return jsonify({'message': '메뉴가 삭제되었습니다.'}), 200
 
+@app.route('/api/admin/review/<int:review_id>', methods=['DELETE'])
+def admin_delete_review(review_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            # 리뷰 존재 여부 확인
+            cur.execute("SELECT review_id FROM review WHERE review_id = %s", (review_id,))
+            if not cur.fetchone():
+                return jsonify({'message': '해당 리뷰를 찾을 수 없습니다.'}), 404
+            
+            # 리뷰 삭제
+            cur.execute("DELETE FROM review WHERE review_id = %s", (review_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+    return jsonify({'message': '리뷰가 삭제되었습니다.'}), 200
+
 # ======================
 # 실행
 # ======================

@@ -58,6 +58,15 @@
     </main>
     <script>
       const STORE_ID = {{ store_id|default(1) }};
+      
+      // 뒤로가기 시 매장 검색 페이지로 이동하도록 설정
+      window.addEventListener('popstate', function(event) {
+        window.location.href = '/admin/store/search';
+      });
+      
+      // 페이지 로드 시 히스토리에 매장 검색 페이지 추가
+      history.pushState({ page: 'store_edit' }, '', window.location.href);
+      
       async function loadStoreInfo() {
         try {
           const res = await fetch(`/api/stores/${STORE_ID}`);
