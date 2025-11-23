@@ -1,5 +1,3 @@
-use fooddb;
--- example --
 INSERT INTO store (name, address, open_time, close_time, phone, distance_km, category_id)
 VALUES ('금성이네', '경기 시흥시 정왕동 ', '16:00','01:00','010-9092-4992', 0.5, 1),
 		( '쭈꾸미삼겹살', '경기 시흥시 정왕동 ', '11:00','01:00','050-4110-8859', 0.6, 1   ),
@@ -10,10 +8,7 @@ VALUES ('금성이네', '경기 시흥시 정왕동 ', '16:00','01:00','010-9092
             ( '라홍방 마라탕', '경기 시흥시 정왕동 ', '10:00','22:20','031-498-4776', 0.5, 2   ),
             ( '회전훠쿼핫', '경기 시흥시 정왕동 ', '11:00','22:20','0507-1349-3305', 0.7, 2   ),
              ( '짬뽕관', '경기 시흥시 정왕동 ', '10:30','21:30','010-9282-1633', 0.8, 2   ),
-             ( '니뽕내뽕', '경기 시흥시 정왕동 ', '11:00','19:50','031-431-3564', 1.0, 2   )
-             
-           ;
-use fooddb;
+             ( '니뽕내뽕', '경기 시흥시 정왕동 ', '11:00','19:50','031-431-3564', 1.0, 2   );
 
 INSERT INTO store (name, address, open_time, close_time, phone, distance_km, category_id) VALUES
 -- 11. 컴포즈커피 시흥시화로데오점
@@ -149,8 +144,6 @@ INSERT INTO store (name, address, open_time, close_time, phone, distance_km, cat
  '0507-1430-6669',
  2.2,
  3);
-
-use fooddb;
 
 INSERT INTO store (name, address, open_time, close_time, phone, distance_km, category_id) VALUES
 -- 26. 로산진

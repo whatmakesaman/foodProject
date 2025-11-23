@@ -28,7 +28,7 @@
     <div class="nav-right">
       <button class="publish-btn" id="refresh-btn">랭킹 새로고침</button>
       <button class="more-btn">⋮</button>
-      <div class="profile-icon">U</div>
+      <button class="publish-btn" id="logout-btn">로그아웃</button>
     </div>
   </div>
 
@@ -181,8 +181,8 @@ const API_URL = "/api/rank?limit=20&use_adv=1";
     }
   }
 
-  // 프로필 아이콘 클릭 시 로그아웃
-  document.querySelector(".profile-icon").addEventListener("click", logout);
+  // 로그아웃 버튼 클릭 시 로그아웃
+  document.getElementById("logout-btn").addEventListener("click", logout);
 </script>
 
 </body>

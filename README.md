@@ -14,19 +14,19 @@
    venv_win\Scripts\activate.bat
    ```
 3. 필요한 패키지 설치
-   > > 플라스크 설치
+   > 플라스크 설치
    ```bash
    pip install flask
    ```
-   > > 플라스크 코어 설치
+   > 플라스크 코어 설치
    ```bash
    pip install flask-cors
    ```
-   > > pymysql 설치
+   > pymysql 설치
    ```bash
    pip install pymysql
    ```
-   > > PyJWT설치
+   > PyJWT설치
    ```bash
    pip install PyJWT
    ```
@@ -50,6 +50,7 @@
 Backend/
  ├── .vscode/
  ├── sql/
+ ├── static/
  ├── templates/
  └── README.md
 ```

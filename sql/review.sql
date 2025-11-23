@@ -1,5 +1,3 @@
-USE fooddb;
-
 INSERT INTO review (user_id, store_id, content, rating) VALUES
 -- 1. 금성이네
 (1, 1, '김치찌개 진짜 맛있어요. 밥 추가 필수.', 5),

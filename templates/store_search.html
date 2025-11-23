@@ -23,13 +23,7 @@
         <span class="form-title-text">🔍수정 매장 검색</span>
       </div>
       <div class="nav-right">
-        <div class="profile-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-            />
-          </svg>
-        </div>
+        <button class="publish-btn" id="logout-btn">로그아웃</button>
       </div>
     </header>
     <main class="main-content">
@@ -175,8 +169,8 @@
         }
       }
 
-      // 프로필 아이콘 클릭 시 로그아웃
-      document.querySelector(".profile-icon").addEventListener("click", logout);
+      // 로그아웃 버튼 클릭 시 로그아웃
+      document.getElementById("logout-btn").addEventListener("click", logout);
 
       // 탭 메뉴 네비게이션
       document.getElementById("inquiry-tab").addEventListener("click", () => {

@@ -1,8 +1,3 @@
-use fooddb;
-
--- set sql_safe_updates=0;
-
-
 INSERT INTO menu (store_id, name, price) VALUES
 -- 1. 금성이네 (한식)
 (1, '김치찌개', 8000),

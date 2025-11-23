@@ -22,7 +22,7 @@
     <div class="nav-right">
       <button class="publish-btn" id="write-inquiry-btn">문의 작성</button>
       <button class="publish-btn" id="to-ranking-btn" style="margin-left:8px;">랭킹 보기</button>
-      <div class="profile-icon">U</div>
+      <button class="publish-btn" id="logout-btn">로그아웃</button>
     </div>
   </div>
 
@@ -181,8 +181,8 @@
       }
     }
 
-    // 프로필 아이콘 클릭 시 로그아웃
-    document.querySelector(".profile-icon").addEventListener("click", logout);
+    // 로그아웃 버튼 클릭 시 로그아웃
+    document.getElementById("logout-btn").addEventListener("click", logout);
   </script>
 </body>
 </html>
