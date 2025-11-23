@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>전체 문의 관리</title>
-  <link rel="stylesheet" href="form-style.css">
+  <meta charset="UTF-8" />
+  <title>전체 문의 목록</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}" />
 </head>
 <body>
+
   <!-- 상단 네비 -->
   <div class="top-nav">
     <div class="nav-left">
@@ -18,98 +19,85 @@
     <div class="nav-center"></div>
 
     <div class="nav-right">
-      <button class="publish-btn" onclick="location.href='ranking.html'">랭킹 보기</button>
+      <button class="publish-btn" onclick="location.href='/ranking'">랭킹 보기</button>
       <div class="profile-icon">A</div>
     </div>
   </div>
 
   <div class="main-content">
     <div class="tab-menu">
-      <button class="tab-btn" onclick="location.href='ranking.html'">랭킹</button>
+      <button class="tab-btn" onclick="location.href='/ranking'">랭킹</button>
       <button class="tab-btn active">문의</button>
     </div>
 
     <div class="form-container">
       <div class="form-card">
-        <div class="form-header">
-          <input class="form-title-input" type="text"
-                 value="전체 사용자 문의 목록" readonly />
-          <div class="form-description">
-            <input class="form-description-input" type="text"
-                   value="답변이 필요한 문의를 선택해 답변을 작성하세요." readonly />
-          </div>
-        </div>
-      </div>
+        <p><strong>전체 문의 목록</strong></p>
 
-      <div id="admin-inquiry-list"></div>
-      <div id="admin-msg" style="margin-top:12px; color:#5f6368;"></div>
+        <table class="styled-table" style="margin-top: 16px; width: 100%;">
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>분야</th>
+              <th>작성일</th>
+              <th>답변</th>
+            </tr>
+          </thead>
+          <tbody id="inquiry-table-body">
+            <!-- JS가 여기다가 행 추가함 -->
+          </tbody>
+        </table>
+
+        <div id="msg" style="margin-top: 12px; color: #5f6368;"></div>
+      </div>
     </div>
   </div>
 
-  <script>
-    const LIST_API_URL = "http://localhost:5000/api/inquiries_all"; // 아래에서 라우트 만들면 됨
+<script>
+async function loadInquiries() {
+  const API = "http://localhost:5000/api/inquiries_all";
 
-    const listEl = document.getElementById("admin-inquiry-list");
-    const msgEl = document.getElementById("admin-msg");
+  try {
+    const res = await fetch(API);
+    const data = await res.json();
 
-    async function loadAllInquiries() {
-      msgEl.textContent = "문의 목록을 불러오는 중입니다...";
-      listEl.innerHTML = "";
-
-      try {
-        const res = await fetch(LIST_API_URL);
-        const data = await res.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-          msgEl.textContent = "등록된 문의가 없습니다.";
-          return;
-        }
-
-        msgEl.textContent = "";
-
-        data.forEach(inq => {
-          const card = document.createElement("div");
-          card.className = "question-card";
-
-          const answered = inq.answer && inq.answer.trim().length > 0;
-
-          card.innerHTML = `
-            <div class="question-content">
-              <div class="question-header">
-                <div class="question-title-input" style="border-bottom:none;">
-                  [${answered ? "답변 완료" : "답변 대기"}] ${inq.title || "(제목 없음)"}
-                </div>
-              </div>
-              <div class="question-options">
-                <div class="option-item">
-                  <span>작성자: ${inq.writer || "-"}</span>
-                </div>
-                <div class="option-item">
-                  <span>작성일: ${inq.created_at || ""}</span>
-                </div>
-                <div class="option-item">
-                  <span>분야: ${inq.field || "-"}</span>
-                </div>
-                <div class="option-item">
-                  <button class="publish-btn"
-                          onclick="location.href='admin_answer.html?id=${inq.inquiry_id}'">
-                    답변 작성 / 수정
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-
-          listEl.appendChild(card);
-        });
-      } catch (err) {
-        console.error(err);
-        msgEl.style.color = "#d93025";
-        msgEl.textContent = "문의 목록을 불러오는 중 오류가 발생했습니다.";
-      }
+    if (!Array.isArray(data)) {
+      msg.textContent = "목록 데이터를 불러오지 못했습니다.";
+      return;
     }
 
-    loadAllInquiries();
-  </script>
+    const tbody = document.getElementById("inquiry-table-body");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${row.inquiry_id}</td>
+        <td style="cursor:pointer; color:#1a73e8;"
+            onclick="location.href='/admin_inquiry_detail?id=${row.inquiry_id}'">
+            ${row.title}
+        </td>
+        <td>${row.writer}</td>
+        <td>${row.field || "-"}</td>
+        <td>${row.created_at}</td>
+        <td>${row.answer ? "완료" : "대기"}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("msg").textContent = "오류가 발생했습니다.";
+  }
+}
+
+// 페이지 로드시 목록 불러오기
+loadInquiries();
+</script>
+
 </body>
 </html>

@@ -59,7 +59,7 @@
 
 <script>
   const params = new URLSearchParams(window.location.search);
-  const id = params.get("inquiry_id");   // ← inquiry_id로 받기
+  const id = params.get("id");   
 
   const titleEl = document.getElementById("title");
   const metaEl = document.getElementById("meta");
@@ -77,7 +77,7 @@
       return;
     }
 
-    const DETAIL_API = `http://localhost:5000/api/inquiries/${id}`;
+    const DETAIL_API = `http://localhost:5000/api/admin/inquiries/${id}`;
     console.log("DETAIL_API =", DETAIL_API);
 
     try {
@@ -129,7 +129,7 @@
       return;
     }
 
-    const ANSWER_API = `http://localhost:5000/api/inquiries/${id}/answer`;
+    const ANSWER_API = `http://localhost:5000/api/admin/inquiries/${id}/answer`;
 
     try {
       const res = await fetch(ANSWER_API, {

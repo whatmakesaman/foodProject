@@ -60,26 +60,44 @@
 
     </div>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get("id");
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
 
-        fetch(`http://localhost:5000/inquiry/${id}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("title").innerText = data.title;
-                document.getElementById("writer").innerText = data.writer;
-                document.getElementById("date").innerText = data.created_at;
-                document.getElementById("field").innerText = data.field;
-                document.getElementById("content").innerText = data.content;
+    async function loadInquiry() {
+        const token = localStorage.getItem("token");
 
-                if (data.answer === null || data.answer === "") {
-                    document.getElementById("answer").innerText = "아직 답변이 등록되지 않았습니다.";
-                } else {
-                    document.getElementById("answer").innerText = data.answer;
-                }
-            });
-    </script>
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login";
+            return;
+        }
+
+        const res = await fetch(`/api/inquiries/${id}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+            alert(data.error || data.message || "문의 내용을 불러올 수 없습니다.");
+            return;
+        }
+
+        document.getElementById("title").innerText = data.title;
+        document.getElementById("writer").innerText = data.writer;
+        document.getElementById("date").innerText = data.created_at;
+        document.getElementById("field").innerText = data.field;
+        document.getElementById("content").innerText = data.content;
+
+        document.getElementById("answer").innerText =
+            data.answer ? data.answer : "아직 답변이 등록되지 않았습니다.";
+    }
+
+    loadInquiry();
+</script>
 
 </body>
 </html>

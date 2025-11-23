@@ -129,104 +129,256 @@
       </div>
     </main>
 
-    <script>
-      const STORE_ID = {{ store_id|default(1) }};
+<script>
+  const STORE_ID = {{ store_id|default(1) }};
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
-      async function loadStoreDetail() {
-        const loadingEl = document.getElementById("loading-message");
-        const errorEl = document.getElementById("error-message");
-        const storeInfoCard = document.getElementById("store-info-card");
-        const statsCard = document.getElementById("stats-card");
-        const hoursCard = document.getElementById("hours-card");
-        const menuCard = document.getElementById("menu-card");
-        const reviewsCard = document.getElementById("reviews-card");
+  async function loadStoreDetail() {
+    const loadingEl = document.getElementById("loading-message");
+    const errorEl = document.getElementById("error-message");
+    const storeInfoCard = document.getElementById("store-info-card");
+    const statsCard = document.getElementById("stats-card");
+    const hoursCard = document.getElementById("hours-card");
+    const menuCard = document.getElementById("menu-card");
+    const reviewsCard = document.getElementById("reviews-card");
 
-        try {
-          const res = await fetch(`/api/stores/${STORE_ID}/detail`);
+    try {
+      const res = await fetch(`/api/stores/${STORE_ID}/detail`);
 
-          if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            errorEl.textContent = errorData.error || "매장 정보를 불러올 수 없습니다.";
-            errorEl.style.display = "block";
-            loadingEl.style.display = "none";
-            return;
-          }
-
-          const data = await res.json();
-          loadingEl.style.display = "none";
-
-          // 매장 기본 정보
-          document.getElementById("store-name").textContent = data.store.name || "이름 없음";
-          document.getElementById("store-address").textContent = data.store.address || "-";
-          document.getElementById("store-phone").textContent = data.store.phone || "-";
-
-          // 통계 정보
-          document.getElementById("avg-rating").textContent =
-            data.stats.avg_rating ? Number(data.stats.avg_rating).toFixed(2) : "-";
-          document.getElementById("review-count").textContent =
-            data.stats.review_cnt || 0;
-          document.getElementById("bayes-score").textContent =
-            data.stats.bayes_score ? Number(data.stats.bayes_score).toFixed(3) : "-";
-          document.getElementById("store_address").textContent =
-            data.store.address ? data.store.address : "-";
-
-          // 영업시간
-          document.getElementById("open-time").textContent = data.store.open_time || "-";
-          document.getElementById("close-time").textContent = data.store.close_time || "-";
-
-          // 메뉴 목록
-          const menuListEl = document.getElementById("menu-list");
-          if (data.menus && data.menus.length > 0) {
-            menuListEl.innerHTML = data.menus.map(menu => `
-              <div class="menu-item">
-                <span class="menu-name">${menu.name}</span>
-                <span class="menu-price">${menu.price ? menu.price.toLocaleString() + "원" : "-"}</span>
-                ${menu.recommend ? `<span class="menu-recommend">추천</span>` : ""}
-              </div>
-            `).join("");
-          } else {
-            menuListEl.innerHTML = '<div class="no-data">등록된 메뉴가 없습니다.</div>';
-          }
-
-          // 리뷰 목록
-          const reviewsListEl = document.getElementById("reviews-list");
-          if (data.reviews && data.reviews.length > 0) {
-            reviewsListEl.innerHTML = data.reviews.map(review => `
-              <div class="review-item">
-                <div class="review-header">
-                  <span class="review-rating">⭐ ${review.rating}</span>
-                  <span class="review-date">${review.created_at || ""}</span>
-                </div>
-                <div class="review-content">${review.content || ""}</div>
-                ${review.helpful_cnt > 0 ? `<div class="review-helpful">도움 ${review.helpful_cnt}개</div>` : ""}
-              </div>
-            `).join("");
-          } else {
-            reviewsListEl.innerHTML = '<div class="no-data">등록된 리뷰가 없습니다.</div>';
-          }
-
-          // 카드들 표시
-          storeInfoCard.style.display = "block";
-          statsCard.style.display = "block";
-          hoursCard.style.display = "block";
-          menuCard.style.display = "block";
-          reviewsCard.style.display = "block";
-
-        } catch (err) {
-          console.error("매장 정보 불러오기 실패:", err);
-          errorEl.textContent = "매장 정보를 불러오는 중 오류가 발생했습니다.";
-          errorEl.style.display = "block";
-          loadingEl.style.display = "none";
-        }
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        errorEl.textContent = errorData.error || "매장 정보를 불러올 수 없습니다.";
+        errorEl.style.display = "block";
+        loadingEl.style.display = "none";
+        return;
       }
 
-      // 인라인 뒤로가기 버튼
-      document.getElementById("back-btn-inline").addEventListener("click", () => {
-        window.location.href = "/ranking";
-      });
+      const data = await res.json();
+      loadingEl.style.display = "none";
 
-      // 페이지 로드 시 데이터 불러오기
-      window.onload = loadStoreDetail;
-    </script>
+      // 매장 기본 정보
+      document.getElementById("store-name").textContent =
+        data.store.name || "이름 없음";
+      document.getElementById("store-address").textContent =
+        data.store.address || "-";
+      document.getElementById("store-phone").textContent =
+        data.store.phone || "-";
+
+      // 통계 정보
+      document.getElementById("avg-rating").textContent =
+        data.stats.avg_rating ? Number(data.stats.avg_rating).toFixed(2) : "-";
+      document.getElementById("review-count").textContent =
+        data.stats.review_cnt || 0;
+      document.getElementById("bayes-score").textContent =
+        data.stats.bayes_score ? Number(data.stats.bayes_score).toFixed(3) : "-";
+      document.getElementById("store_address").textContent =
+        data.store.address ? data.store.address : "-";
+
+      // 영업시간
+      document.getElementById("open-time").textContent =
+        data.store.open_time || "-";
+      document.getElementById("close-time").textContent =
+        data.store.close_time || "-";
+
+      // 메뉴 목록
+      const menuListEl = document.getElementById("menu-list");
+      if (data.menus && data.menus.length > 0) {
+        menuListEl.innerHTML = data.menus
+          .map(
+            (menu) => `
+          <div class="menu-item">
+            <div>
+              <span class="menu-name">${menu.name}</span>
+              <span class="menu-price">${
+                menu.price ? menu.price.toLocaleString() + "원" : "-"
+              }</span>
+              ${menu.recommend ? `<span class="menu-recommend">추천</span>` : ""}
+            </div>
+
+            ${
+              isAdmin
+                ? `
+              <div class="menu-admin-actions">
+                <button class="publish-btn" onclick="editMenu(${menu.menu_id})">
+                  수정
+                </button>
+                <button class="publish-btn" onclick="deleteMenu(${menu.menu_id})">
+                  삭제
+                </button>
+              </div>
+            `
+                : ""
+            }
+          </div>
+        `
+          )
+          .join("");
+      } else {
+        menuListEl.innerHTML =
+          '<div class="no-data">등록된 메뉴가 없습니다.</div>';
+      }
+
+      // 리뷰 목록
+      const reviewsListEl = document.getElementById("reviews-list");
+      if (data.reviews && data.reviews.length > 0) {
+        reviewsListEl.innerHTML = data.reviews
+          .map(
+            (review) => `
+          <div class="review-item">
+            <div class="review-header">
+              <span class="review-rating">⭐ ${review.rating}</span>
+              <span class="review-date">${review.created_at || ""}</span>
+            </div>
+            <div class="review-content">${review.content || ""}</div>
+            ${
+              review.helpful_cnt > 0
+                ? `<div class="review-helpful">도움 ${review.helpful_cnt}개</div>`
+                : ""
+            }
+          </div>
+        `
+          )
+          .join("");
+      } else {
+        reviewsListEl.innerHTML =
+          '<div class="no-data">등록된 리뷰가 없습니다.</div>';
+      }
+
+      // 카드들 표시
+      storeInfoCard.style.display = "block";
+      statsCard.style.display = "block";
+      hoursCard.style.display = "block";
+      menuCard.style.display = "block";
+      reviewsCard.style.display = "block";
+
+      // ✅ 관리자라면 상단/메뉴 관리 버튼 보이기
+      if (isAdmin) {
+        document.getElementById("admin-store-actions").style.display = "block";
+        document.getElementById("admin-menu-actions").style.display = "block";
+      }
+    } catch (err) {
+      console.error("매장 정보 불러오기 실패:", err);
+      errorEl.textContent =
+        "매장 정보를 불러오는 중 오류가 발생했습니다.";
+      errorEl.style.display = "block";
+      loadingEl.style.display = "none";
+    }
+  }
+
+  // 인라인 뒤로가기 버튼
+  document
+    .getElementById("back-btn-inline")
+    .addEventListener("click", () => {
+      window.location.href = "/ranking";
+    });
+
+  // ✅ 매장 정보 수정 버튼 클릭
+  if (document.getElementById("edit-store-btn")) {
+    document
+      .getElementById("edit-store-btn")
+      .addEventListener("click", async () => {
+        const currentName =
+          document.getElementById("store-name").textContent || "";
+        const currentAddress =
+          document.getElementById("store-address").textContent || "";
+        const currentPhone =
+          document.getElementById("store-phone").textContent || "";
+
+        const newName = prompt("새 매장 이름을 입력하세요", currentName);
+        if (!newName) return;
+
+        const newAddress = prompt(
+          "새 주소를 입력하세요 (취소 시 기존 값 유지)",
+          currentAddress
+        );
+        const newPhone = prompt(
+          "새 전화번호를 입력하세요 (취소 시 기존 값 유지)",
+          currentPhone
+        );
+
+        const res = await fetch(`/api/admin/store/${STORE_ID}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: newName,
+            address: newAddress || currentAddress,
+            phone: newPhone || currentPhone,
+          }),
+        });
+
+        const result = await res.json();
+        alert(result.message || "수정 완료");
+        loadStoreDetail();
+      });
+  }
+
+  // ✅ 메뉴 추가 버튼 클릭
+  if (document.getElementById("add-menu-btn")) {
+    document
+      .getElementById("add-menu-btn")
+      .addEventListener("click", async () => {
+        const name = prompt("추가할 메뉴 이름을 입력하세요");
+        if (!name) return;
+
+        const priceStr = prompt("가격을 숫자로 입력하세요 (예: 8000)");
+        const price = Number(priceStr);
+        if (!priceStr || Number.isNaN(price)) {
+          alert("가격을 올바르게 입력하세요.");
+          return;
+        }
+
+        const res = await fetch(`/api/admin/store/${STORE_ID}/menus`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, price }),
+        });
+        const result = await res.json();
+        alert(result.message || "메뉴 추가 완료");
+        loadStoreDetail();
+      });
+  }
+
+  // ✅ 전역 함수: 메뉴 수정/삭제 (menu_id 필요)
+async function editMenu(menuId) {
+  const newName = prompt("새 메뉴 이름을 입력하세요");
+  if (!newName) return;
+
+  const newPriceStr = prompt("새 가격을 숫자로 입력하세요");
+  const newPrice = Number(newPriceStr);
+  if (!newPriceStr || Number.isNaN(newPrice)) {
+    alert("가격을 올바르게 입력하세요.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/menu/${menuId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newName,
+        price: newPrice
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      alert(data.message || "메뉴 수정에 실패했습니다.");
+      return;
+    }
+
+    alert(data.message || "메뉴 수정 완료");
+    // 🔥 여기서 다시 상세 정보 로딩
+    await loadStoreDetail();
+
+  } catch (err) {
+    console.error(err);
+    alert("서버 오류가 발생했습니다.");
+  }
+}
+
+  // 페이지 로드 시 데이터 불러오기
+  window.onload = loadStoreDetail;
+</script>
   </body>
 </html>

@@ -3,58 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>관리자 로그인</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}">
 </head>
 <body>
 
-<h2>관리자 로그인</h2>
+  <div class="top-nav">
+    <div class="nav-left">
+      <div class="form-icon"><strong>🔐</strong></div>
+      <div class="form-title-group">
+        <div class="form-title-text">관리자 로그인</div>
+        <div class="form-description">
+          <span>사이트 관리자만 접근할 수 있습니다.</span>
+        </div>
+      </div>
+    </div>
 
-<form id="admin-login-form">
-    <p>관리자 아이디:
-        <input type="text" id="admin_login_id" required>
-    </p>
+    <div class="nav-center"></div>
 
-    <p>비밀번호:
-        <input type="password" id="admin_password" required>
-    </p>
+    <div class="nav-right">
+<button class="publish-btn" onclick="location.href='/ranking'">랭킹 보기</button>
+      <div class="profile-icon">A</div>
+    </div>
+  </div>
 
-    <button type="submit">로그인</button>
-</form>
+  <div class="main-content">
+    <div class="form-container">
+      <div class="form-card">
+
+        <div class="form-header">
+          <input class="form-title-input" type="text" 
+                 value="관리자 전용 로그인" readonly />
+        </div>
+
+        <form id="admin-login-form">
+          <div class="form-group">
+            <label>관리자 아이디</label>
+            <input type="text" id="admin_login_id" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label>비밀번호</label>
+            <input type="password" id="admin_password" class="form-input" required>
+          </div>
+
+          <button type="submit" class="publish-btn" style="margin-top:16px;">
+            로그인
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
 
 <script>
 document.getElementById("admin-login-form").addEventListener("submit", async function (e) {
-    e.preventDefault(); // 기본 form 전송 막기
+    e.preventDefault();
 
     const loginId = document.getElementById("admin_login_id").value;
     const password = document.getElementById("admin_password").value;
 
-    try {
-        const res = await fetch("http://localhost:5000/api/admin/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                login_id: loginId,
-                password: password
-            })
-        });
+    const res = await fetch("/api/admin/login", {   // <- 상대 경로로 써도 됨
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ login_id: loginId, password })
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        if (!res.ok) {
-            alert(data.message || "관리자 로그인 실패");
-            return;
-        }
-
-        // 🔐 관리자 토큰 저장 (같은 key 써도 되고 따로 써도 됨)
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("adminName", data.admin.admin_name);
-        localStorage.setItem("adminId", data.admin.admin_id);
-
-        // ✅ 관리자 전용 문의 페이지로 이동 (파일 이름 맞게 수정!)
-        window.location.href = "/admin_inquiry_list.html";
-    } catch (err) {
-        console.error(err);
-        alert("서버 오류");
+    if (!data.success) {
+        alert(data.message);
+        return;
     }
+
+    // ✅ 관리자 정보 + isAdmin 플래그 저장
+    localStorage.setItem("isAdmin", "true");
+    localStorage.setItem("adminName", data.admin.admin_name);
+    localStorage.setItem("adminId", data.admin.admin_id);
+    // 관리자 문의 목록으로 이동 (그대로 사용)
+    window.location.href = "/admin_inquiry_list";
 });
 </script>
 
