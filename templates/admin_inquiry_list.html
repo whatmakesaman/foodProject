@@ -4,6 +4,32 @@
   <meta charset="UTF-8" />
   <title>전체 문의 목록</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}" />
+  <style>
+    .styled-table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .styled-table thead {
+      background-color: #f5f5f5;
+    }
+    
+    .styled-table th {
+      font-weight: 600;
+      color: #202124;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .styled-table tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+    
+    .styled-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,7 +45,6 @@
     <div class="nav-center"></div>
 
     <div class="nav-right">
-      <button class="publish-btn" onclick="location.href='/admin/store/search'">매장 검색</button>
       <div class="profile-icon">A</div>
     </div>
   </div>
@@ -32,23 +57,27 @@
 
     <div class="form-container">
       <div class="form-card">
-        <p><strong>전체 문의 목록</strong></p>
+        <div class="form-header">
+          <h3 style="margin-bottom: 20px;">전체 문의 목록</h3>
+        </div>
 
-        <table class="styled-table" style="margin-top: 16px; width: 100%;">
-          <thead>
-            <tr>
-              <th>번호</th>
-              <th>제목</th>
-              <th>작성자</th>
-              <th>분야</th>
-              <th>작성일</th>
-              <th>답변</th>
-            </tr>
-          </thead>
-          <tbody id="inquiry-table-body">
-            <!-- JS가 여기다가 행 추가함 -->
-          </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+          <table class="styled-table" style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+            <thead>
+              <tr>
+                <th style="width: 8%; text-align: center; padding: 12px 8px;">번호</th>
+                <th style="width: 35%; text-align: left; padding: 12px 8px;">제목</th>
+                <th style="width: 12%; text-align: center; padding: 12px 8px;">작성자</th>
+                <th style="width: 10%; text-align: center; padding: 12px 8px;">분야</th>
+                <th style="width: 20%; text-align: center; padding: 12px 8px;">작성일</th>
+                <th style="width: 15%; text-align: center; padding: 12px 8px;">답변</th>
+              </tr>
+            </thead>
+            <tbody id="inquiry-table-body">
+              <!-- JS가 여기다가 행 추가함 -->
+            </tbody>
+          </table>
+        </div>
 
         <div id="msg" style="margin-top: 12px; color: #5f6368;"></div>
       </div>
@@ -75,15 +104,23 @@ async function loadInquiries() {
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-        <td>${row.inquiry_id}</td>
-        <td style="cursor:pointer; color:#1a73e8;"
-            onclick="location.href='/admin_inquiry_detail?id=${row.inquiry_id}'">
-            ${row.title}
+        <td style="text-align: center; padding: 12px 8px; border-bottom: 1px solid #e0e0e0;">${row.inquiry_id}</td>
+        <td style="text-align: left; padding: 12px 8px; border-bottom: 1px solid #e0e0e0;">
+          <a href="/admin_inquiry_detail?id=${row.inquiry_id}" 
+             style="cursor:pointer; color:#1a73e8; text-decoration: none; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+             onmouseover="this.style.textDecoration='underline'"
+             onmouseout="this.style.textDecoration='none'">
+            ${row.title || "-"}
+          </a>
         </td>
-        <td>${row.writer}</td>
-        <td>${row.field || "-"}</td>
-        <td>${row.created_at}</td>
-        <td>${row.answer ? "완료" : "대기"}</td>
+        <td style="text-align: center; padding: 12px 8px; border-bottom: 1px solid #e0e0e0;">${row.writer || "-"}</td>
+        <td style="text-align: center; padding: 12px 8px; border-bottom: 1px solid #e0e0e0;">${row.field || "-"}</td>
+        <td style="text-align: center; padding: 12px 8px; border-bottom: 1px solid #e0e0e0;">${row.created_at || "-"}</td>
+        <td style="text-align: center; padding: 12px 8px; border-bottom: 1px solid #e0e0e0;">
+          <span style="padding: 4px 8px; border-radius: 4px; font-size: 13px; ${row.answer ? 'background-color: #e8f5e9; color: #2e7d32;' : 'background-color: #fff3e0; color: #e65100;'}">
+            ${row.answer ? "완료" : "대기"}
+          </span>
+        </td>
       `;
 
       tbody.appendChild(tr);
