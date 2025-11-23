@@ -401,6 +401,9 @@ def store_detail_page(store_id):
 # ======================
 # 회원가입 페이지 + 회원가입 처리
 # ======================
+# ======================
+# 회원가입 페이지 + 회원가입 처리
+# ======================
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     if request.method == 'GET':
@@ -413,8 +416,12 @@ def register_page():
     name = data.get('name')
 
     user_type = data.get('userType')
+
     student_id = data.get('student_id')
+    school_name = data.get("school_name")
+
     pro_id = data.get('pro_id')
+    store_name = data.get('store_name')
 
     if not login_id or not password or not name:
         return jsonify({"message": "아이디, 비밀번호, 이름은 필수입니다."}), 400
@@ -422,32 +429,61 @@ def register_page():
     conn = get_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute(
-                "SELECT user_id FROM user WHERE login_id = %s",
-                (login_id,)
-            )
-            exist = cur.fetchone()
-            if exist:
+
+            # 아이디 중복 체크
+            cur.execute("SELECT user_id FROM user WHERE login_id = %s", (login_id,))
+            if cur.fetchone():
                 return jsonify({"message": "이미 존재하는 아이디입니다."}), 409
 
-            sql = """
-                INSERT INTO user (login_id, pw, name, create_at)
-                VALUES (%s, %s, %s, NOW())
-            """
-            cur.execute(sql, (login_id, password, name))
+            # ======================
+            # ⭐ 사장 회원가입 처리
+            # ======================
+            if user_type == "provider":
+                sql = """
+                    INSERT INTO provider (store_name, pw, business_number, status, login_id)
+                    VALUES (%s, %s, %s, 'active', %s)
+                """
+                cur.execute(sql, (store_name, password, pro_id, login_id))
+
+                # provider 생성 후 user 테이블에도 추가
+                sql = """
+                    INSERT INTO user (login_id, pw, name, pro_id)
+                    VALUES (%s, %s, %s, LAST_INSERT_ID())
+                """
+                cur.execute(sql, (login_id, password, name))
+
+            # ======================
+            # ⭐ 학생 회원가입 처리
+            # ======================
+            elif user_type == "student":
+                sql = """
+                    INSERT INTO student (student_id, major)
+                    VALUES (%s, %s)
+                """
+                cur.execute(sql, (student_id, school_name))
+
+                sql = """
+                    INSERT INTO user (login_id, pw, name, student_id)
+                    VALUES (%s, %s, %s, %s)
+                """
+                cur.execute(sql, (login_id, password, name, student_id))
+
             conn.commit()
-            user_id = cur.lastrowid
+
+            return jsonify({
+                "message": "회원가입 성공",
+                "user": {
+                    "login_id": login_id,
+                    "name": name
+                }
+            }), 201
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": f"회원가입 실패: {e}"}), 500
+
     finally:
         conn.close()
-
-    return jsonify({
-        "message": "회원가입 성공",
-        "user": {
-            "user_id": user_id,
-            "login_id": login_id,
-            "name": name
-        }
-    }), 201
 
 
 # ======================

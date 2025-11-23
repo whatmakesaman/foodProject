@@ -76,6 +76,7 @@
 
         <label>이름</label>
         <input type="text" name="name" required>
+
         <!-- 학생용 입력 -->
         <div id="studentFields">
             <label>학교 이름</label>
@@ -87,6 +88,9 @@
 
         <!-- 사장용 입력 -->
         <div id="providerFields" style="display: none;">
+            <label>가게 이름</label>
+            <input type="text" name="store_name">
+
             <label>사업자등록번호</label>
             <input type="text" name="pro_id">
         </div>
@@ -104,8 +108,6 @@
 </div>
 
 <script>
-    
-
     const userType = document.getElementById("userType");
     const studentFields = document.getElementById("studentFields");
     const providerFields = document.getElementById("providerFields");
@@ -128,8 +130,12 @@
             login_id: document.querySelector('input[name="login_id"]').value,
             password: document.querySelector('input[name="pw"]').value,
             name: document.querySelector('input[name="name"]').value,
+
             student_id: document.querySelector('input[name="student_id"]').value,
-            pro_id: document.querySelector('input[name="pro_id"]').value
+            school_name: document.querySelector('input[name="school_name"]').value,
+
+            pro_id: document.querySelector('input[name="pro_id"]').value,
+            store_name: document.querySelector('input[name="store_name"]').value
         };
 
         try {
