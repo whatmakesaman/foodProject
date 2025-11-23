@@ -1,0 +1,50 @@
+.form-card {
+  max-width: 500px;
+  margin: 36px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #bbb4;
+  padding: 32px 32px 24px 32px;
+}
+.form-card h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.form-label-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.form-label-row label {
+  min-width: 100px;
+  font-weight: bold;
+  color: #444;
+}
+.form-label-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 7px;
+  border: 1.2px solid #b5b5b5;
+  font-size: 1rem;
+  margin-left: 12px;
+}
+.btn-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+.msg-area {
+  margin-top: 18px;
+  font-size: 1em;
+  text-align: center;
+}
+.delete-btn {
+  background-color: #d93025;
+  color: #ffffff;
+}
+.delete-btn:hover {
+  background-color: #c5221f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}

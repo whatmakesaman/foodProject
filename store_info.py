@@ -22,8 +22,9 @@ def get_store_detail(store_id):
     - 메뉴 목록
     - 최근 리뷰 목록
     """
-    conn = get_connection()
+    conn = None
     try:
+        conn = get_connection()
         with conn.cursor() as cur:
             # 1. 매장 기본 정보 조회
             cur.execute("""
@@ -44,16 +45,21 @@ def get_store_detail(store_id):
             if not store_info:
                 return jsonify({"error": "해당 매장을 찾을 수 없습니다."}), 404
             
-            # 2. 통계 정보 조회 (랭킹 뷰에서)
-            cur.execute("""
-                SELECT 
-                    avg_rating,
-                    review_cnt,
-                    bayes_score
-                FROM v_store_ranking
-                WHERE store_id = %s
-            """, (store_id,))
-            stats = cur.fetchone()
+            # 2. 통계 정보 조회 (랭킹 뷰에서) - 뷰가 없을 수 있으므로 예외 처리
+            stats = None
+            try:
+                cur.execute("""
+                    SELECT 
+                        avg_rating,
+                        review_cnt,
+                        bayes_score
+                    FROM v_store_ranking
+                    WHERE store_id = %s
+                """, (store_id,))
+                stats = cur.fetchone()
+            except Exception as e:
+                print(f"통계 정보 조회 오류 (뷰가 없을 수 있음): {e}")
+                stats = None
             
             # 3. 메뉴 목록 조회
             cur.execute("""
@@ -124,7 +130,11 @@ def get_store_detail(store_id):
                 "reviews": reviews
             }
             
+            return jsonify(result), 200
+            
+    except Exception as e:
+        print(f"매장 정보 조회 오류: {e}")
+        return jsonify({"error": "매장 정보를 불러오는 중 오류가 발생했습니다."}), 500
     finally:
-        conn.close()
-    
-    return jsonify(result), 200
+        if conn:
+            conn.close()

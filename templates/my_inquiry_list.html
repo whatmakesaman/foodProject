@@ -163,6 +163,26 @@
     }
 
     loadInquiries();
+
+    // 로그아웃 기능
+    function logout() {
+      if (confirm("로그아웃 하시겠습니까?")) {
+        // localStorage에서 모든 인증 정보 제거
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_name");
+        localStorage.removeItem("isAdmin");
+        localStorage.removeItem("adminId");
+        localStorage.removeItem("admin_name");
+        localStorage.removeItem("adminName");
+        
+        // 로그인 페이지로 이동
+        window.location.href = "/login";
+      }
+    }
+
+    // 프로필 아이콘 클릭 시 로그아웃
+    document.querySelector(".profile-icon").addEventListener("click", logout);
   </script>
 </body>
 </html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>제목 없는 설문지</title>
+    <link rel="stylesheet" href="/static/google_form_style.css" />
+  </head>
+  <body>
+    <!-- 상단 네비게이션 바 -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <div class="form-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"
+            />
+          </svg>
+        </div>
+        <div class="form-title-group">
+          <span class="form-title-text">제목 없는 설문지</span>
+          <button class="star-btn" title="즐겨찾기">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="nav-center">
+        <button class="nav-icon-btn" title="테마">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5 11 5.67 11 6.5 10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5 16 5.67 16 6.5 15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9 19 9.67 19 10.5 18.33 12 17.5 12z"
+            />
+          </svg>
+        </button>
+        <button class="nav-icon-btn" title="미리보기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+            />
+          </svg>
+        </button>
+        <button class="nav-icon-btn" title="실행 취소">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"
+            />
+          </svg>
+        </button>
+        <button class="nav-icon-btn" title="다시 실행">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"
+            />
+          </svg>
+        </button>
+        <button class="nav-icon-btn" title="사전 입력된 링크 가져오기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"
+            />
+          </svg>
+        </button>
+        <button class="nav-icon-btn" title="공동 작업자 추가">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="nav-right">
+        <button class="publish-btn">게시</button>
+        <button class="more-btn" title="더보기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+            />
+          </svg>
+        </button>
+        <div class="profile-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+      <!-- 탭 메뉴 -->
+      <div class="tab-menu">
+        <button class="tab-btn active">질문</button>
+        <button class="tab-btn">응답</button>
+        <button class="tab-btn">설정</button>
+      </div>
+
+      <!-- 폼 콘텐츠 영역 -->
+      <div class="form-container">
+        <!-- 폼 제목 및 설명 카드 -->
+        <div class="form-card">
+          <div class="form-header">
+            <input
+              type="text"
+              class="form-title-input"
+              value="제목 없는 설문지"
+              placeholder="설문지 제목"
+            />
+            <div class="form-description">
+              <input
+                type="text"
+                class="form-description-input"
+                placeholder="설문지 설명"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- 질문 카드 -->
+        <div class="question-card">
+          <div class="question-drag-handle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+              />
+            </svg>
+          </div>
+          <div class="question-content">
+            <div class="question-header">
+              <input
+                type="text"
+                class="question-title-input"
+                value="제목 없는 질문"
+                placeholder="질문 제목"
+              />
+              <div class="question-actions">
+                <button class="question-action-btn" title="이미지 추가">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+                    />
+                  </svg>
+                </button>
+                <select class="question-type-select">
+                  <option value="multiple">객관식 질문</option>
+                  <option value="checkbox">체크박스</option>
+                  <option value="dropdown">드롭다운</option>
+                  <option value="short">단답형</option>
+                  <option value="paragraph">장문형</option>
+                </select>
+              </div>
+            </div>
+            <div class="question-options">
+              <div class="option-item">
+                <input type="radio" id="option1" name="question1" disabled />
+                <input
+                  type="text"
+                  class="option-input"
+                  value="옵션 1"
+                  placeholder="옵션 입력"
+                />
+              </div>
+              <div class="option-item">
+                <input type="radio" id="option2" name="question1" disabled />
+                <input
+                  type="text"
+                  class="option-input"
+                  value="옵션 추가 또는 '기타' 추가"
+                  placeholder="옵션 입력"
+                />
+              </div>
+            </div>
+            <div class="question-footer">
+              <button class="footer-btn" title="복제">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                  />
+                </svg>
+              </button>
+              <button class="footer-btn" title="삭제">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                  />
+                </svg>
+              </button>
+              <label class="required-toggle">
+                <input type="checkbox" />
+                <span>필수</span>
+              </label>
+              <button class="footer-btn" title="더보기">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

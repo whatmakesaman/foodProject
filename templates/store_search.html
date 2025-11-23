@@ -4,8 +4,18 @@
     <meta charset="UTF-8" />
     <title>매장 검색</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/Home.css" />
-    <link rel="stylesheet" href="/static/store_search.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='Home.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/form-style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='store_search.css') }}"
+    />
   </head>
   <body>
     <header class="top-nav">
@@ -22,35 +32,58 @@
         </div>
       </div>
     </header>
-    <main class="search-main">
-      <div class="search-container">
-        <div class="search-title">수정할 매장 검색</div>
-        <form id="search-form" class="search-form">
-          <div class="search-wrapper">
-            <div class="search-box">
-              <svg
-                class="search-icon"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-                />
-              </svg>
-              <input
-                type="text"
-                id="search-input"
-                class="search-input"
-                placeholder="매장명을 검색하세요"
-                autocomplete="off"
-              />
-            </div>
-            <button type="submit" class="search-btn">검색</button>
+    <main class="main-content">
+      <!-- 탭 메뉴 -->
+      <div class="tab-menu">
+        <button class="tab-btn active">매장 검색</button>
+        <button class="tab-btn" id="inquiry-tab">문의</button>
+      </div>
+
+      <div class="form-container">
+        <div class="form-card" style="text-align: center">
+          <div class="search-title" style="margin-bottom: 30px">
+            수정할 매장 검색
           </div>
-        </form>
-        <div id="search-message" class="search-message"></div>
+          <form
+            id="search-form"
+            class="search-form"
+            style="max-width: 600px; margin: 0 auto"
+          >
+            <div class="search-wrapper">
+              <div class="search-box">
+                <svg
+                  class="search-icon"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  id="search-input"
+                  class="search-input"
+                  placeholder="매장명을 검색하세요"
+                  autocomplete="off"
+                />
+              </div>
+              <button type="submit" class="search-btn">검색</button>
+            </div>
+          </form>
+          <div
+            id="search-message"
+            class="search-message"
+            style="margin-top: 16px"
+          ></div>
+          <div
+            id="search-results"
+            class="search-results"
+            style="margin-top: 24px; display: none"
+          ></div>
+        </div>
       </div>
     </main>
     <script>
@@ -60,15 +93,18 @@
           e.preventDefault();
           const query = document.getElementById("search-input").value.trim();
           const msgEl = document.getElementById("search-message");
+          const resultsEl = document.getElementById("search-results");
 
           if (!query) {
             msgEl.textContent = "검색어를 입력해주세요.";
             msgEl.style.color = "#d93025";
+            resultsEl.style.display = "none";
             return;
           }
 
           msgEl.textContent = "검색 중...";
           msgEl.style.color = "#5f6368";
+          resultsEl.style.display = "none";
 
           try {
             const res = await fetch(
@@ -81,24 +117,71 @@
               msgEl.textContent =
                 errorData.error || `서버 오류 (${res.status})`;
               msgEl.style.color = "#d93025";
+              resultsEl.style.display = "none";
               return;
             }
 
             const data = await res.json();
 
-            if (data.store_id) {
-              // 검색 성공: 해당 매장 수정 페이지로 이동
-              window.location.href = `/admin/store/${data.store_id}`;
-            } else {
+            // 배열인지 확인 (여러 매장 반환)
+            if (Array.isArray(data) && data.length > 0) {
+              msgEl.textContent = `검색 결과: ${data.length}개 매장을 찾았습니다.`;
+              msgEl.style.color = "#34a853";
+
+              // 검색 결과 리스트 표시
+              resultsEl.innerHTML = "";
+              data.forEach((store) => {
+                const storeItem = document.createElement("div");
+                storeItem.className = "store-item";
+                storeItem.textContent = store.name;
+                storeItem.onclick = function () {
+                  // 검색 성공: 해당 매장 상세 페이지로 이동
+                  window.location.href = `/ranking/store_info/${store.store_id}`;
+                };
+                resultsEl.appendChild(storeItem);
+              });
+              resultsEl.style.display = "block";
+            } else if (data.error) {
               msgEl.textContent = data.error || "매장을 찾을 수 없습니다.";
               msgEl.style.color = "#d93025";
+              resultsEl.style.display = "none";
+            } else {
+              msgEl.textContent = "매장을 찾을 수 없습니다.";
+              msgEl.style.color = "#d93025";
+              resultsEl.style.display = "none";
             }
           } catch (err) {
             console.error("검색 오류:", err);
             msgEl.textContent = `검색 중 오류가 발생했습니다: ${err.message}`;
             msgEl.style.color = "#d93025";
+            resultsEl.style.display = "none";
           }
         });
+
+      // 로그아웃 기능
+      function logout() {
+        if (confirm("로그아웃 하시겠습니까?")) {
+          // localStorage에서 모든 인증 정보 제거
+          localStorage.removeItem("token");
+          localStorage.removeItem("user_id");
+          localStorage.removeItem("user_name");
+          localStorage.removeItem("isAdmin");
+          localStorage.removeItem("adminId");
+          localStorage.removeItem("admin_name");
+          localStorage.removeItem("adminName");
+
+          // 로그인 페이지로 이동
+          window.location.href = "/login";
+        }
+      }
+
+      // 프로필 아이콘 클릭 시 로그아웃
+      document.querySelector(".profile-icon").addEventListener("click", logout);
+
+      // 탭 메뉴 네비게이션
+      document.getElementById("inquiry-tab").addEventListener("click", () => {
+        window.location.href = "/admin_inquiry_list";
+      });
     </script>
   </body>
 </html>

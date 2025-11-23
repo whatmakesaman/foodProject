@@ -2,178 +2,168 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>문의 상세 (관리자)</title>
-  <!-- 이 페이지 전용 간단 스타일 -->
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f5f5f5;
-    }
-    .page {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 24px;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 24px;
-    }
-    .top-nav {
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-    .top-nav a {
-      color: #5f24ff;
-      text-decoration: none;
-      margin-right: 8px;
-    }
-    .top-nav a:hover {
-      text-decoration: underline;
-    }
-    .section {
-      margin-top: 20px;
-    }
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .info-box {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      background: #fafafa;
-      font-size: 14px;
-      resize: none;
-      min-height: 80px;
-    }
-    .msg {
-      margin-top: 8px;
-      font-size: 13px;
-      color: #d93025;
-    }
-    .btn-row {
-      margin-top: 24px;
-      display: flex;
-      gap: 8px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-      text-decoration: none;
-      text-align: center;
-    }
-    .btn-outline {
-      border: 1px solid #5f24ff;
-      color: #5f24ff;
-      background: #ffffff;
-    }
-    .btn-outline:hover {
-      background: #f0ebff;
-    }
-    .btn-main {
-      background: #5f24ff;
-      color: #ffffff;
-    }
-    .btn-main:hover {
-      background: #5120dc;
-    }
-  </style>
+  <title>문의 상세 / 답변 작성</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/form-style.css') }}" />
 </head>
 <body>
-  <div class="page">
-    <div class="top-nav">
-      <a href="admin_inquiry_list.html">← 목록으로</a>
+
+  <!-- 상단 네비 -->
+  <div class="top-nav">
+    <div class="nav-left">
+      <div class="form-icon"><strong>📄</strong></div>
+      <div class="form-title-group">
+        <div class="form-title-text">문의 상세</div>
+      </div>
     </div>
 
-    <h1>문의 상세 (관리자)</h1>
+    <div class="nav-center"></div>
 
-    <div id="msg" class="msg"></div>
-
-    <!-- 문의 정보 -->
-    <div class="section">
-      <div class="section-title">문의 정보</div>
-      <textarea id="meta" class="info-box" readonly></textarea>
-    </div>
-
-    <!-- 문의 내용 -->
-    <div class="section">
-      <div class="section-title">문의 내용</div>
-      <textarea id="content" class="info-box" readonly></textarea>
-    </div>
-
-    <!-- 관리자 답변 -->
-    <div class="section">
-      <div class="section-title">관리자 답변</div>
-      <textarea id="answer" class="info-box" readonly></textarea>
-    </div>
-
-    <div class="btn-row">
-      <a href="admin_inquiry_list.html" class="btn btn-outline">목록으로</a>
-      <a id="go-answer" href="#" class="btn btn-main">답변 작성 페이지로</a>
+    <div class="nav-right">
+      <button class="publish-btn" onclick="location.href='/admin_inquiry_list'">목록으로</button>
+      <div class="profile-icon">A</div>
     </div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("inquiry_id");
+  <div class="main-content">
+    <div class="tab-menu">
+      <button class="tab-btn" onclick="location.href='/admin/store/search'">매장 검색</button>
+      <button class="tab-btn active" onclick="location.href='/admin_inquiry_list'">문의</button>
+    </div>
 
-    const metaEl = document.getElementById("meta");
-    const contentEl = document.getElementById("content");
-    const answerEl = document.getElementById("answer");
-    const msgEl = document.getElementById("msg");
-    const goAnswer = document.getElementById("go-answer");
+    <div class="form-container">
+      <!-- 문의 제목 카드 -->
+      <div class="form-card">
+        <div class="form-header">
+          <input id="title" class="form-title-input" type="text" value="" readonly />
+          <div class="form-description">
+            <input id="meta" class="form-description-input" type="text" value="" readonly />
+          </div>
+        </div>
+      </div>
 
-    async function loadInquiry() {
-      if (!id) {
-        msgEl.textContent = "문의 ID가 없습니다. 주소를 확인해 주세요.";
+      <!-- 내용 & 답변 -->
+      <div class="form-card">
+        <p><strong>문의 내용</strong></p>
+        <p id="content" style="margin: 12px 0 20px 0;"></p>
+
+        <p><strong>답변 입력</strong></p>
+        <textarea id="answer-input" rows="5"
+          style="width:100%; margin-top:8px; padding:8px;"></textarea>
+
+        <button class="publish-btn" style="margin-top:16px;" id="save-btn">저장하기</button>
+      </div>
+
+      <div id="msg" style="margin-top:12px; color:#5f6368;"></div>
+    </div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  const titleEl = document.getElementById("title");
+  const metaEl = document.getElementById("meta");
+  const contentEl = document.getElementById("content");
+  const answerInput = document.getElementById("answer-input");
+  const msgEl = document.getElementById("msg");
+
+  // ------------------------
+  // 문의 상세 불러오기
+  // ------------------------
+  async function loadInquiry() {
+    if (!id) {
+      msgEl.style.color = "#d93025";
+      msgEl.textContent = "문의 ID가 없습니다.";
+      return;
+    }
+
+    const API = `http://localhost:5000/api/admin/inquiries/${id}`;
+
+    try {
+      const res = await fetch(API);
+      const data = await res.json();
+
+      if (!res.ok) {
+        msgEl.style.color = "#d93025";
+        msgEl.textContent = data.error || "불러오기 실패";
         return;
       }
 
-      try {
-        const res = await fetch(`http://localhost:5000/api/inquiries/${id}`);
-        if (!res.ok) {
-          msgEl.textContent =
-            "문의 정보를 불러오지 못했습니다. (HTTP " + res.status + ")";
-          return;
-        }
+      titleEl.value = data.title || "(제목 없음)";
+      metaEl.value =
+        `작성자: ${data.writer} / 작성일: ${data.created_at} / 분야: ${data.field || "-"}`;
+      contentEl.textContent = data.content || "";
 
-        const data = await res.json();
+      if (data.answer) answerInput.value = data.answer;
 
-        metaEl.value =
-          `문의번호: ${data.inquiry_id}\n` +
-          `사용자 ID: ${data.user_id}\n` +
-          `제목: ${data.title || "(제목 없음)"}\n` +
-          `작성자: ${data.writer || "-"}\n` +
-          `분야: ${data.field || "-"}\n` +
-          `작성일: ${data.created_at || ""}`;
+    } catch (err) {
+      console.error(err);
+      msgEl.style.color = "#d93025";
+      msgEl.textContent = "서버 오류가 발생했습니다.";
+    }
+  }
 
-        contentEl.value = data.content || "";
-        answerEl.value = data.answer || "(등록된 답변이 없습니다.)";
-
-        // 답변 작성 페이지 링크 설정
-        goAnswer.href = `admin_answer.html?inquiry_id=${data.inquiry_id}`;
-      } catch (err) {
-        console.error(err);
-        msgEl.textContent = "문의 정보를 불러오는 중 오류가 발생했습니다.";
-      }
+  // ------------------------
+  // 답변 저장
+  // ------------------------
+  async function saveAnswer() {
+    const answer = answerInput.value.trim();
+    if (!answer) {
+      alert("답변 내용을 입력해주세요.");
+      return;
     }
 
-    loadInquiry();
-  </script>
+    const API = `http://localhost:5000/api/admin/inquiries/${id}/answer`;
+
+    try {
+      const res = await fetch(API, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answer })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "저장 실패");
+        return;
+      }
+
+      msgEl.style.color = "#188038";
+      msgEl.textContent = "답변이 저장되었습니다.";
+      alert("저장 완료!");
+
+    } catch (err) {
+      console.error(err);
+      alert("오류 발생");
+    }
+  }
+
+  document.getElementById("save-btn").addEventListener("click", saveAnswer);
+
+  // 페이지 로딩
+  loadInquiry();
+
+  // 로그아웃 기능
+  function logout() {
+    if (confirm("로그아웃 하시겠습니까?")) {
+      // localStorage에서 모든 인증 정보 제거
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("user_name");
+      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("adminId");
+      localStorage.removeItem("admin_name");
+      localStorage.removeItem("adminName");
+      
+      // 로그인 페이지로 이동
+      window.location.href = "/login";
+    }
+  }
+
+  // 프로필 아이콘 클릭 시 로그아웃
+  document.querySelector(".profile-icon").addEventListener("click", logout);
+</script>
+
 </body>
 </html>

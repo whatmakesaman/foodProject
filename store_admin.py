@@ -5,7 +5,6 @@ import pymysql
 app = Flask(__name__)
 app.json.ensure_ascii = False  # 한글 깨짐 방지
 
-
 def get_conn():
     """MySQL 연결을 생성합니다."""
     return pymysql.connect(
@@ -16,8 +15,6 @@ def get_conn():
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
     )
-
-
 # =========================================================
 # [관리자] 매장 정보 조회 (수정 페이지 진입용)
 #  GET /api/stores/<store_id>
@@ -50,7 +47,6 @@ def get_store(store_id):
 
     if not row:
         return jsonify({"error": "해당 매장을 찾을 수 없습니다."}), 404
-
     return jsonify(row), 200
 
 
@@ -80,7 +76,6 @@ def update_store(store_id):
             jsonify({"error": "필수 항목(name, address)이 누락되었습니다."}),
             400,
         )
-
     conn = get_conn()
     try:
         with conn.cursor() as cur:
@@ -104,7 +99,6 @@ def update_store(store_id):
             if phone is not None:
                 update_fields.append("phone = %s")
                 params.append(phone)
-
             if distance is not None:
                 update_fields.append("distance = %s")
                 params.append(distance)
@@ -167,8 +161,6 @@ def delete_store(store_id):
         conn.close()
 
     return jsonify({"message": "매장이 삭제되었습니다."}), 200
-
-
 if __name__ == "__main__":
     # 관리자용 매장 관리 서버 (포트 5000)
     # *기존 inquiry.py와 동시에 실행 시 포트 충돌이 날 수 있으므로, 동시 실행 시에는

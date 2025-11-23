@@ -31,6 +31,4 @@ MODIFY user_id INT NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE provider
 MODIFY pro_id INT NOT NULL AUTO_INCREMENT;
-
 select* from user;
-

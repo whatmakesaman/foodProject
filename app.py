@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, send_from_directory, g, render_template, redirect
+
 from flask_cors import CORS
 from ranking import get_rank
 import decimal
@@ -58,7 +59,6 @@ def convert_decimal(rows):
         converted.append(new_row)
     return converted
 
-
 # ======================
 # 랭킹 API
 # GET /api/rank
@@ -78,8 +78,6 @@ def api_rank():
 
     rows = convert_decimal(rows)
     return jsonify(rows)
-
-
 # ======================
 # JWT 데코레이터들
 # ======================
@@ -219,7 +217,6 @@ def create_inquiry():
 
     if not title or not content:
         return jsonify({"error": "title, content는 필수입니다."}), 400
-
     conn = get_connection()
     try:
         with conn.cursor() as cur:
@@ -276,7 +273,6 @@ def list_inquiries():
         conn.close()
 
     return jsonify(rows)
-
 
 # ======================
 # 문의 상세 (사용자 본인 것만)
@@ -358,98 +354,30 @@ def update_inquiry_answer(inquiry_id):
 # GET /api/inquiries_all
 # ======================
 @app.route('/api/inquiries_all', methods=['GET'])
-@admin_required
 def get_all_inquiries():
     conn = get_connection()
-    cursor = conn.cursor()
-
-    sql = """
-        SELECT inquiry_id, user_id, title, writer, created_at, content, answer, field
-        FROM inquiry
-        ORDER BY created_at DESC
-    """
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return jsonify(rows)
-
-
-# ======================
-# 관리자 로그인
-# POST /api/admin/login
-# ======================
-@app.route('/api/admin/login', methods=['POST'])
-def admin_login():
-    data = request.get_json() or {}
-    login_id = data.get('login_id')
-    password = data.get('password')
-
-    if not login_id or not password:
-        return jsonify({'message': '아이디와 비밀번호를 입력하세요.'}), 400
-
-    conn = get_connection()
     try:
         with conn.cursor() as cursor:
             sql = """
-                SELECT admin_id, login_id, pw, admin_name
-                FROM site_admin
-                WHERE login_id = %s
-            """
-            cursor.execute(sql, (login_id,))
-            admin = cursor.fetchone()
-    finally:
-        conn.close()
-
-    if not admin or admin['pw'] != password:
-        return jsonify({'message': '아이디 또는 비밀번호가 올바르지 않습니다.'}), 401
-
-    payload = {
-        'admin_id': admin['admin_id'],
-        'admin_name': admin['admin_name'],
-        'role': 'admin',
-        'exp': datetime.utcnow() + timedelta(hours=2)
-    }
-    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    if isinstance(token, bytes):
-        token = token.decode('utf-8')
-
-    return jsonify({
-        'message': '관리자 로그인 성공',
-        'token': token,
-        'admin': {
-            'admin_id': admin['admin_id'],
-            'admin_name': admin['admin_name']
-        }
-    })
-
-
-# ======================
-# 관리자 전용 문의 상세
-# GET /api/admin/inquiries/<id>
-# ======================
-@app.route('/api/admin/inquiries/<int:inquiry_id>', methods=['GET'])
-@admin_required
-def admin_inquiry_detail(inquiry_id):
-    conn = get_connection()
-    try:
-        with conn.cursor() as cursor:
-            sql = """
-                SELECT inquiry_id, user_id, title, writer, content, answer, created_at, field
+                SELECT
+                    inquiry_id,
+                    user_id,
+                    title,
+                    writer,
+                    DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at,
+                    content,
+                    answer,
+                    field
                 FROM inquiry
-                WHERE inquiry_id = %s
+                ORDER BY inquiry_id DESC
             """
-            cursor.execute(sql, (inquiry_id,))
-            row = cursor.fetchone()
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+        return jsonify(rows), 200
     finally:
         conn.close()
 
-    if not row:
-        return jsonify({'message': '해당 문의가 없습니다.'}), 404
 
-    return jsonify(row)
 # ======================
 # 로그인 화면
 # ======================
@@ -458,53 +386,34 @@ def login_page():
     return render_template("login.html")
 
 
-
 # ======================
-# (선택) 랭킹 / 매장 상세 페이지 라우트
-# 팀원 app.py 참고해서 추가
+# 랭킹 / 매장 상세 페이지
 # ======================
 @app.route('/ranking')
 def ranking_page():
-    """랭킹 페이지"""
-    # templates/ranking.html 있어야 함
     return render_template('ranking.html')
 
 
 @app.route('/ranking/store_info/<int:store_id>')
 def store_detail_page(store_id):
-    """매장 상세 정보 페이지"""
-    # templates/store_detail.html 있어야 함
     return render_template('store_detail.html', store_id=store_id)
 
 
-
-# 이미 위에 있으니까 중복되면 추가 안 해도 됨
-
-
-
-
-
-# ======================
-# 회원가입 페이지 + 회원가입 처리
-# ======================
 # ======================
 # 회원가입 페이지 + 회원가입 처리
 # ======================
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
-    # 1) GET: 회원가입 화면 보여주기
     if request.method == 'GET':
         return render_template('register.html')
 
-    # 2) POST: 회원가입 처리 (fetch로 JSON 받음)
     data = request.get_json() or {}
 
     login_id = data.get('login_id')
     password = data.get('password') or data.get('pw')
     name = data.get('name')
 
-    # 선택값들(학생/사장 구분용)
-    user_type = data.get('userType')      # "student" or "provider"
+    user_type = data.get('userType')
     student_id = data.get('student_id')
     pro_id = data.get('pro_id')
 
@@ -514,7 +423,6 @@ def register_page():
     conn = get_connection()
     try:
         with conn.cursor() as cur:
-            # 아이디 중복 확인
             cur.execute(
                 "SELECT user_id FROM user WHERE login_id = %s",
                 (login_id,)
@@ -523,7 +431,6 @@ def register_page():
             if exist:
                 return jsonify({"message": "이미 존재하는 아이디입니다."}), 409
 
-            # 기본 user 정보 저장
             sql = """
                 INSERT INTO user (login_id, pw, name, create_at)
                 VALUES (%s, %s, %s, NOW())
@@ -531,14 +438,9 @@ def register_page():
             cur.execute(sql, (login_id, password, name))
             conn.commit()
             user_id = cur.lastrowid
-
-            # TODO: 나중에 student / provider 테이블 연동하고 싶으면
-            # user_type, student_id, pro_id를 여기서 활용하면 됨.
-
     finally:
         conn.close()
 
-    # 성공 시 JSON 응답 → 프론트에서 보고 redirect
     return jsonify({
         "message": "회원가입 성공",
         "user": {
@@ -547,50 +449,210 @@ def register_page():
             "name": name
         }
     }), 201
-    
-    # ======================
+
+
+# ======================
 # 문의 페이지 화면 라우트
 # ======================
-
-# 문의 작성 페이지
 @app.route('/inquiry', methods=['GET'])
 def inquiry_page():
     return render_template('inquiry.html')
 
-# 내 문의 목록 페이지
+
 @app.route('/my_inquiry_list', methods=['GET'])
 def my_inquiry_list():
     return render_template('my_inquiry_list.html')
 
 
+# ======================
+# 매장 검색
+# ======================
 @app.route('/api/stores/search', methods=['GET'])
 def search_store():
     q = request.args.get('q')
     if not q:
         return jsonify({'error': '검색어가 없습니다.'}), 400
-    
+
     conn = get_connection()
     try:
         with conn.cursor() as cur:
             sql = """
-                SELECT store_id, name 
+                SELECT store_id, name
                 FROM store
                 WHERE name LIKE %s
-                LIMIT 1
+                ORDER BY name
             """
             cur.execute(sql, (f"%{q}%",))
-            store = cur.fetchone()
+            stores = cur.fetchall()
     finally:
         conn.close()
-    
-    if not store:
+
+    if not stores:
         return jsonify({'error': '매장을 찾을 수 없습니다.'}), 404
 
-    return jsonify(store)
+    return jsonify(stores)
+
+
+@app.route('/admin/store/search', methods=['GET'])
+def admin_store_search_page():
+    """매장 검색 페이지를 보여줍니다."""
+    return render_template('store_search.html')
 
 @app.route('/admin/store/<int:store_id>', methods=['GET'])
 def admin_store_edit(store_id):
     return render_template('store_admin_edit.html', store_id=store_id)
+
+# ======================
+# 관리자 로그인 페이지 라우트
+# ======================
+@app.route('/admin_login', methods=['GET'])
+def admin_login_page():
+    return render_template('admin_login.html')
+
+# ======================
+# 관리자 로그인
+# POST /api/admin/login
+# ======================
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    data = request.get_json()
+    login_id = data.get('login_id')
+    password = data.get('password')
+
+    if not login_id or not password:
+        return jsonify({'success': False, 'message': '아이디와 비밀번호를 입력하세요.'}), 400
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT admin_id, login_id, admin_name
+                FROM site_admin
+                WHERE login_id = %s AND pw = %s
+            """
+            cursor.execute(sql, (login_id, password))
+            admin = cursor.fetchone()
+    finally:
+        conn.close()
+
+    if not admin:
+        return jsonify({'success': False, 'message': '관리자 계정이 아니거나 비밀번호가 올바르지 않습니다.'}), 401
+
+    return jsonify({
+        'success': True,
+        'admin': {
+            'admin_id': admin['admin_id'],
+            'admin_name': admin['admin_name']
+        }
+    }), 200
+
+# 관리자 문의 목록 페이지
+@app.route('/admin_inquiry_list', methods=['GET'])
+def admin_inquiry_list_page():
+    return render_template('admin_inquiry_list.html')
+
+
+# 관리자 문의 상세 + 답변 작성 페이지
+@app.route('/admin_inquiry_detail', methods=['GET'])
+def admin_inquiry_detail_page():
+    inquiry_id = request.args.get('id', type=int)
+    return render_template('admin_inquiry_detail.html', inquiry_id=inquiry_id)
+
+# -------------------------------------------
+# 관리자 전용: 문의 상세 조회
+# GET /api/admin/inquiries/<inquiry_id>
+# -------------------------------------------
+@app.route('/api/admin/inquiries/<int:inquiry_id>', methods=['GET'])
+def admin_get_inquiry(inquiry_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT
+                    inquiry_id,
+                    user_id,
+                    title,
+                    writer,
+                   DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:%%i') AS created_at,
+                    content,
+                    answer,
+                    field
+                FROM inquiry
+                WHERE inquiry_id = %s
+            """
+            cursor.execute(sql, (inquiry_id,))
+            row = cursor.fetchone()
+
+        if not row:
+            return jsonify({'error': '해당 문의를 찾을 수 없습니다.'}), 404
+
+        return jsonify(row), 200
+    finally:
+        conn.close()
+
+
+# -------------------------------------------
+# 관리자 전용: 답변 저장 / 수정
+# PUT /api/admin/inquiries/<inquiry_id>/answer
+# -------------------------------------------
+@app.route('/api/admin/inquiries/<int:inquiry_id>/answer', methods=['PUT'])
+def admin_update_inquiry_answer(inquiry_id):
+    data = request.get_json()
+    answer = (data.get('answer') or '').strip()
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = "UPDATE inquiry SET answer = %s WHERE inquiry_id = %s"
+            cursor.execute(sql, (answer, inquiry_id))
+        conn.commit()
+        return jsonify({'message': '답변이 저장되었습니다.'}), 200
+    finally:
+        conn.close()
+
+@app.route('/api/admin/menu/<int:menu_id>', methods=['PUT'])
+def admin_update_menu(menu_id):
+    data = request.get_json() or {}
+
+    new_name = data.get('name')
+    new_price = data.get('price')
+
+    if not new_name:
+        return jsonify({'message': '메뉴 이름은 필수입니다.'}), 400
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            sql = """
+                UPDATE menu
+                SET name = %s,
+                    price = %s
+                WHERE menu_id = %s
+            """
+            cur.execute(sql, (new_name, new_price, menu_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+    return jsonify({'message': '메뉴가 수정되었습니다.'}), 200
+
+@app.route('/api/admin/menu/<int:menu_id>', methods=['DELETE'])
+def admin_delete_menu(menu_id):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            # 메뉴 존재 여부 확인
+            cur.execute("SELECT menu_id FROM menu WHERE menu_id = %s", (menu_id,))
+            if not cur.fetchone():
+                return jsonify({'message': '해당 메뉴를 찾을 수 없습니다.'}), 404
+            
+            # 메뉴 삭제
+            cur.execute("DELETE FROM menu WHERE menu_id = %s", (menu_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+    return jsonify({'message': '메뉴가 삭제되었습니다.'}), 200
 
 # ======================
 # 실행
