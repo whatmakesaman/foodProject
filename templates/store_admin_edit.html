@@ -11,7 +11,7 @@
   <body>
     <header class="top-nav">
       <div class="nav-left">
-        <span class="form-title-text">미식의 왕</span>
+        <span class="form-title-text">📄매장 상세 정보</span>
       </div>
       <div class="nav-right">
         <button class="publish-btn" id="logout-btn">로그아웃</button>
@@ -52,21 +52,21 @@
     </main>
     <script>
       const STORE_ID = {{ store_id|default(1) }};
-      
-      
+
+
       window.addEventListener('popstate', function(event) {
         window.location.href = '/admin/store/search';
       });
-      
-      
+
+
       history.pushState({ page: 'store_edit' }, '', window.location.href);
-      
+
       async function loadStoreInfo() {
         try {
           console.log('매장 정보 로드 시작, STORE_ID:', STORE_ID);
           const res = await fetch(`/api/stores/${STORE_ID}`);
           console.log('응답 상태:', res.status, res.statusText);
-          
+
           if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
             const errorMsg = errorData.error || `서버 오류 (${res.status})`;
@@ -74,18 +74,18 @@
             document.getElementById('msgArea').textContent = `매장 정보를 불러올 수 없습니다: ${errorMsg}`;
             return;
           }
-          
+
           const data = await res.json();
           console.log('받은 데이터:', data);
-          
-         
+
+
           document.getElementById('name').value = data.name || '';
           document.getElementById('address').value = data.address || '';
           document.getElementById('open').value = data.open || '';
           document.getElementById('close').value = data.close || '';
           document.getElementById('phone').value = data.phone || '';
-          
-          
+
+
           document.getElementById('msgArea').textContent = '';
         } catch(e) {
           console.error('로드 오류:', e);
@@ -109,7 +109,7 @@
         const result = await res.json();
         if(res.ok) {
           alert('수정되었습니다');
-          // 수정 완료 후 매장 상세 페이지로 이동 
+          // 수정 완료 후 매장 상세 페이지로 이동
           window.location.href = `/ranking/store_info/${STORE_ID}?t=${Date.now()}`;
         } else {
           document.getElementById('msgArea').textContent = result.error || '수정 실패';
@@ -126,7 +126,7 @@
           document.getElementById('msgArea').textContent = result.error || '삭제 실패';
         }
       });
-      
+
       // 로그아웃 기능
       function logout() {
         if (confirm("로그아웃 하시겠습니까?")) {
@@ -138,17 +138,16 @@
           localStorage.removeItem("adminId");
           localStorage.removeItem("admin_name");
           localStorage.removeItem("adminName");
-          
+
           // 로그인 페이지로 이동
           window.location.href = "/login";
         }
       }
-      
+
       // 로그아웃 버튼 클릭 시 로그아웃
       document.getElementById("logout-btn").addEventListener("click", logout);
-      
+
       window.onload = loadStoreInfo;
     </script>
   </body>
 </html>
-

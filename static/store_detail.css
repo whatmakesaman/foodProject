@@ -120,12 +120,20 @@
 
 .review-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  width: 100%;
   padding: 16px;
   border: 1px solid #dadce0;
   border-radius: 8px;
   background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.review-item > div:first-child {
+  flex: 1;
+  min-width: 0;
+  margin-right: 16px;
 }
 
 .review-header {
@@ -163,6 +171,8 @@
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: 16px;
+  align-items: flex-start;
 }
 
 .loading-message,
