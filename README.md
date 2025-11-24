@@ -1,6 +1,6 @@
-# Backend
+# DB Team Project
 
-백앤드
+데이터 베이스 팀 프로젝트 9팀
 
 # 📌 1. 실행 환경 준비
 
@@ -62,7 +62,7 @@
 
 3. 더 자세한 정보는 readme.txt참조
 
-# 📌 3. 폴더구조
+# 📁 3. 폴더구조
 
 ```bash
 Backend/
@@ -80,3 +80,14 @@ Backend/
 ## 📎 GitHub Repository
 
 🔗 https://github.com/2025-DB-Team9/Backend
+
+## 👨‍💻 제작자 (가나다순)
+
+- 류상진
+- GitHub: https://github.com/Rael0515
+
+- 방준혁
+- GitHub: https://github.com/whatmakesaman
+
+- 이경섭
+- GitHub: https://github.com/maxwall778
