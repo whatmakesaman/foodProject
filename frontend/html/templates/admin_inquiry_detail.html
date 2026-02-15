@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>문의 상세 (관리자)</title>
+</head>
+<body>
+
+<h1>문의 상세 (관리자)</h1>
+
+<p><b>문의번호:</b> {{ inquiry.inquiry_id }}</p>
+<p><b>사용자 ID:</b> {{ inquiry.user_id }}</p>
+<p><b>제목:</b> {{ inquiry.title }}</p>
+<p><b>작성자:</b> {{ inquiry.writer or '-' }}</p>
+<p><b>분야:</b> {{ inquiry.field or '-' }}</p>
+<p><b>작성일:</b> {{ inquiry.created_at }}</p>
+
+<hr>
+
+<h3>문의 내용</h3>
+<p>{{ inquiry.content }}</p>
+
+<hr>
+
+<h3>관리자 답변</h3>
+
+<form id="answerForm">
+    <textarea id="answer" name="answer" rows="6" cols="60">{% if inquiry.answer %}{{ inquiry.answer }}{% endif %}</textarea><br><br>
+    <button type="submit">답변 저장</button>
+</form>
+
+<p id="message"></p>
+
+<p>
+    <a href="/admin/inquiries">목록으로</a> |
+    <a href="/inquiry">사용자 문의 작성 페이지로</a>
+</p>
+
+<script>
+document.getElementById("answerForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const answer = document.getElementById("answer").value;
+    const message = document.getElementById("message");
+
+    try {
+        const response = await fetch("/api/admin/inquiries/{{ inquiry.inquiry_id }}/answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answer: answer })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            message.textContent = "답변이 저장되었습니다.";
+        } else {
+            message.textContent = "에러: " + (result.error || "서버 오류");
+        }
+    } catch (err) {
+        message.textContent = "통신 오류: 서버와 연결할 수 없습니다.";
+    }
+});
+</script>
+
+</body>
+</html>

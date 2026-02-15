@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>문의 목록 (관리자)</title>
+</head>
+<body>
+
+<h1>문의 목록 (관리자)</h1>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <thead>
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>분야</th>
+            <th>작성일</th>
+            <th>답변여부</th>
+            <th>관리</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for q in inquiries %}
+        <tr>
+            <td>{{ q.inquiry_id }}</td>
+            <td>{{ q.title }}</td>
+            <td>{{ q.writer or '-' }}</td>
+            <td>{{ q.field or '-' }}</td>
+            <td>{{ q.created_at }}</td>
+            <td>
+                {% if q.answer %}
+                    완료
+                {% else %}
+                    미답변
+                {% endif %}
+            </td>
+            <td>
+                <a href="/admin/inquiries/{{ q.inquiry_id }}">상세/답변</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p>
+    <!-- 나중에 메인 페이지 생기면 그 링크로 바꾸면 됨 -->
+    <a href="/inquiry">사용자 문의 작성 페이지로</a>
+</p>
+
+</body>
+</html>

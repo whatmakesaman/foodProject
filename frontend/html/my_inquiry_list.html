@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>내 문의 목록</title>
+  <link rel="stylesheet" href="form-style.css">
+</head>
+<body>
+  <!-- 상단 네비 -->
+  <div class="top-nav">
+    <div class="nav-left">
+      <div class="form-icon">
+        <strong>📄</strong>
+      </div>
+      <div class="form-title-group">
+        <div class="form-title-text">내 문의 목록</div>
+      </div>
+    </div>
+
+    <div class="nav-center"></div>
+
+    <div class="nav-right">
+      <button class="publish-btn" id="write-inquiry-btn">문의 작성</button>
+      <button class="publish-btn" id="to-ranking-btn" style="margin-left:8px;">랭킹 보기</button>
+      <div class="profile-icon">U</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="tab-menu">
+      <button class="tab-btn" id="rank-tab">랭킹</button>
+      <button class="tab-btn active">문의</button>
+    </div>
+
+    <div class="form-container">
+      <!-- 설명 카드 -->
+      <div class="form-card">
+        <div class="form-header">
+          <input
+            class="form-title-input"
+            type="text"
+            value="내가 작성한 문의들"
+            readonly
+          />
+          <div class="form-description">
+            <input
+              class="form-description-input"
+              type="text"
+              value="최근 순으로 내가 남긴 문의 내역입니다."
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 여기 안에 문의 카드들이 들어감 -->
+      <div id="inquiry-list"></div>
+
+      <!-- 메시지 영역 -->
+      <div id="list-message" style="margin-top: 12px; color: #5f6368;"></div>
+    </div>
+  </div>
+
+  <script>
+    const USER_ID = 1;  // 임시로 고정. 나중에 로그인 연동하면 바꿀 부분
+    const API_URL = `http://localhost:5000/api/inquiries?user_id=${USER_ID}`;
+
+    const listEl = document.getElementById("inquiry-list");
+    const msgEl = document.getElementById("list-message");
+
+    // 탭/버튼 네비게이션
+    document.getElementById("rank-tab").addEventListener("click", () => {
+      window.location.href = "ranking.html";
+    });
+
+    document.getElementById("write-inquiry-btn").addEventListener("click", () => {
+      window.location.href = "inquiry.html";
+    });
+
+    document.getElementById("to-ranking-btn").addEventListener("click", () => {
+      window.location.href = "ranking.html";
+    });
+
+    async function loadInquiries() {
+      msgEl.textContent = "문의 목록을 불러오는 중입니다...";
+      listEl.innerHTML = "";
+
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          msgEl.textContent = "작성한 문의가 없습니다.";
+          return;
+        }
+
+        msgEl.textContent = "";
+
+        data.forEach((inq) => {
+          const card = document.createElement("div");
+          card.className = "question-card";
+
+          const answered = inq.answer && inq.answer.trim().length > 0;
+
+          card.innerHTML = `
+            <div class="question-content">
+              <div class="question-header">
+                <div class="question-title-input" style="border-bottom:none;">
+                  [${answered ? "답변 완료" : "답변 대기"}] ${inq.title || "(제목 없음)"}
+                </div>
+              </div>
+              <div class="question-options">
+                <div class="option-item">
+                  <span>작성일: ${inq.created_at || ""}</span>
+                </div>
+                <div class="option-item">
+                  <span>분야: ${inq.field || "-"}</span>
+                </div>
+                <div class="option-item">
+                  <span>내용: ${inq.content || ""}</span>
+                </div>
+                <div class="option-item">
+                  <span>답변: ${answered ? inq.answer : "아직 답변이 등록되지 않았습니다."}</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+          listEl.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        msgEl.style.color = "#d93025";
+        msgEl.textContent = "문의 목록을 불러오는 중 오류가 발생했습니다.";
+      }
+    }
+
+    loadInquiries();
+  </script>
+</body>
+</html>
